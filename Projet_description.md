@@ -86,19 +86,19 @@ h.
 Paramètres liés à la population étudiée :
 
 
-- *K* : **100**, facteur seuil
-- *sr* : **0,5**, facteur de reproduction des jeunes
+- *K* : **100**, nombre maximal d'individus que le milieu peut supporter
+- *sr* : **0,5**, sex-ratio
 - *m1** : **0,0014**, mortalité naturelle des nouveaux-nés
 - *m2* : **0,00029**, mortalité naturelle des jeunes
 - *m3* : **0,0019**, mortalité naturelle des adultes
 - *f2* : **0,0019**, taux de fécondité des jeunes
 - *f3* : **0,0082**, taux de fécondité des adultes
-- *portee* : **5**, facteur de reproduction des jeunes
+- *portee* : **5**, effectif maximal d'une portée 
 - *t1* : **1/365**, probabilité de passage de la classe d'âge "nouveau-né" à "jeune"
 - *t2* : **1/365**, probabilité de passage de la classe d'âge "jeune" à "adulte"
 
 **Paramètres liés à la maladie :**
-- *trans* : **0,3**, taux de transmission de l'AP
+- *trans* : **0,3**, force d'infection
 - *lat* : **1/5**, taux de la latence
 - *rec* : **1/20**, taux de passage à un état d'immmunité
 - *loss* : **1/100**, taux de passage d'un état d'immunité à un état sensible (sain)
