@@ -9,7 +9,7 @@ On considère dans ce modèle :
 - *NN* : Nouveaux-nés
 - *J* : Jeunes
 - *A* : Adultes
-- *N* : Total
+- *N* : Population totale
 
 **4 états de santé :** 
 - *S* : Sain
@@ -48,7 +48,7 @@ b. Les processus biologiques en jeu sont :
 
 c. Equations associées : 
 
-Classe d'âge NN (nouveaux nés)
+**Classe d'âge NN (nouveaux nés)**
 
 $$S_{NN_{t+1}} = S_{NN_t} (1 - m_{1} - t_{1} - trans . N_{II_t}) + loss . R_{NN_t} + max( 0,\ s_{R} . portee . \sum_{J} . f_{2}) + \sum_{A} . f_{3} (1 - \frac{N}{K}) $$ 
 
@@ -58,6 +58,38 @@ $$II_{NN{t+1}} = II_{NN_t}(1 - m_{1} - madd - t_{1} - rec) + lat . IN_{NN_t}$$
 
 $$R_{NN{t+1}} = R_{NN_t}(1 - m_{1} - t_{1} - loss) + rec . II_{NN_t}$$
 
+**Classe d'âge J (jeunes)**
+
+$$S_{J_{t+1}} = S_{NN_t}.t_{1} + S_{J_t}(1 - m_{2} - t_{2} - \frac{trans . II_{N_t}}{N}) + loss.R_{J_t}$$
+
+$$IN_{J_{t+1}} = IN_{NN_t}.t_{1} + IN_{J_t}(1 - m_{2} - t_{2} - lat) + trans.S_{J_t}.II_{N_t}$$
+
+$$II_{J_{t+1}} = II_{NN_t}.t_{1} + II_{J_t}(1 - m_{2} - madd - t_{2} - rec) + lat.IN_{J_t}$$
+
+$$R_{J_{t+1}} = R_{NN_t}.t_{1} + R{J_t}(1 - m_{2} - t_{2} - loss) + rec.II_{J_t}$$
+
+**Classe d'âge A (adultes)**
+
+$$S_{A_{t+1}} = S_{J_t}.t_{2} + S_{A_t}(1 - m_{3} - \frac{trans.II_{N_t}}{N}) + loss.R_{A_t}$$
+
+$$IN_{A_{t+1}} = IN_{J_t}.t_{2} + IN_{A_t}(1 - m_{3} - lat) + \frac{trans.S_{A_t}.II_{N_t}}{N}$$
+
+$$II_{A_{t+1}}= II_{J_t}.t_{2} + II{A_t}(1 - m_{3} - madd - rec) + lat.IN_{A_t}$$
+
+$$R_{A_{t+1}}=R_{J_t}.t_{2}+R_{A_t}(1-m_{3}-loss)+rec.II_{A_t}$$
+
+**Total**
+$$S_{N_{t+1}}=S_{NN_{t+1}}+S_{J_{t+1}}+S_{A_{t+1}}$$
+
+$$IN_{N_{t+1}}=IN_{NN_{t+1}}+IN_{J_{t+1}}+IN_{A_{t+1}}$$
+
+$$II_{N_{t+1}}=II_{NN_{t+1}}+II_{J_{t+1}}+II_{A_{t+1}}$$
+
+$$R_{N_{t+1}}=R_{NN_{t+1}}+R_{J_{t+1}}+R_{A_{t+1}}$$
+
+**Niveau d'"infectiosité" de l'agent pathogène par jour**
+
+$$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{II_{N_t}}{N})$$
 
 d. 
 Schéma des transitions entre états
