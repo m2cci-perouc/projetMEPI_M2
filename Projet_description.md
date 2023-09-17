@@ -6,16 +6,16 @@
 On considère dans ce modèle :
 
 **3 classes d'âge :** 
-- *A* : Nouveaux-nés
-- *B* : Jeunes
-- *C* : Adultes
+- *NN* : Nouveaux-nés
+- *J* : Jeunes
+- *A* : Adultes
 - *N* : Total
 
 **4 états de santé :** 
-- *1* : Sain
-- *2* : Infecté neutre
-- *3* : Infecté infectieux
-- *4* : Remis
+- *S* : Sain
+- *IN* : Infecté neutre
+- *II* : Infecté infectieux
+- *R* : Remis
 
 Sur une période de 2 ans soit 2x365 jours. 
 
@@ -47,9 +47,18 @@ b. Les processus biologiques en jeu sont :
 
 
 c. Equations associées : 
-```
 
-```
+Classe d'âge NN (nouveaux nés)
+
+$$S_{NN_{t+1}} = S_{NN_t} (1 - m_{1} - t_{1} - trans . N_{II_t}) + loss . R_{NN_t} + max( 0,\ s_{R} . portee . \sum_{J} . f_{2}) + \sum_{A} . f_{3} (1 - \frac{N}{K}) $$ 
+
+$$IN_{NN_{t+1}} = IN_{NN_t}(1 - m_{1} - t{1} - \text{lat}) + \frac{\text{trans} . S_{NN_t} . II_{N_t}}{N}$$ 
+
+$$II_{NN{t+1}} = II_{NN_t}(1 - m_{1} - madd - t_{1} - rec) + lat . IN_{NN_t}$$ 
+
+$$R_{NN{t+1}} = R_{NN_t}(1 - m_{1} - t_{1} - loss) + rec . II_{NN_t}$$
+
+
 d. 
 Schéma des transitions entre états
 
