@@ -148,5 +148,12 @@ Paramètres liés à la population étudiée :
 i. 
 
 
-2. 
+2. Analyse de sensibilité : Méthode OAT
+
+3. Analyse de sensibilité : Méthode Morris
+
+4. Analyse de sensibilité : Méthode FAST
+
+Lien pour la méthode sur R : https://rdrr.io/cran/fast/man/sensitivity.html 
+
 
