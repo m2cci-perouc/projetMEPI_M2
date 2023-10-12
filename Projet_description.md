@@ -50,7 +50,7 @@ c. Equations associées :
 
 **Classe d'âge NN (nouveaux nés)**
 
-$$S_{NN_{t+1}} = S_{NN_t} (1 - m_{1} - t_{1} - trans . N_{II_t}) + loss . R_{NN_t} + max( 0,\ s_{R} . portee . \sum_{J} . f_{2}) + \sum_{A} . f_{3} (1 - \frac{N}{K}) $$ 
+$$S_{NN_{t+1}} = S_{NN_t} (1 - m_{1} - t_{1} - \frac{trans . II_{N_t}}{N}) + loss . R_{NN_t} + max( 0,\ s_{R} . portee . \sum_{J} . f_{2}) + \sum_{A} . f_{3} (1 - \frac{N}{K}) $$ 
 
 $$IN_{NN_{t+1}} = IN_{NN_t}(1 - m_{1} - t{1} - \text{lat}) + \frac{\text{trans} . S_{NN_t} . II_{N_t}}{N}$$ 
 
@@ -62,7 +62,7 @@ $$R_{NN{t+1}} = R_{NN_t}(1 - m_{1} - t_{1} - loss) + rec . II_{NN_t}$$
 
 $$S_{J_{t+1}} = S_{NN_t}.t_{1} + S_{J_t}(1 - m_{2} - t_{2} - \frac{trans . II_{N_t}}{N}) + loss.R_{J_t}$$
 
-$$IN_{J_{t+1}} = IN_{NN_t}.t_{1} + IN_{J_t}(1 - m_{2} - t_{2} - lat) + trans.S_{J_t}.II_{N_t}$$
+$$IN_{J_{t+1}} = IN_{NN_t}.t_{1} + IN_{J_t}(1 - m_{2} - t_{2} - lat) + \frac{trans.S_{J_t}.II_{N_t}}{N}$$
 
 $$II_{J_{t+1}} = II_{NN_t}.t_{1} + II_{J_t}(1 - m_{2} - madd - t_{2} - rec) + lat.IN_{J_t}$$
 
