@@ -99,8 +99,10 @@ modAppli <- function(parametre){
 	MAT[4,3,t+1] <- sum(MAT[1:3,3,t+1]); 
 	MAT[4,4,t+1] <- sum(MAT[1:3,4,t+1]);
 	nvinf[t+1]   <- trans*MAT[4,1,t]*MAT[4,3,t]/N
+
+# 	#stockage des donnees effectif dans un objet eff -----------------------
+
 	
-	#stockage des donnees effectif dans un objet eff
 	  #Nouveaux-nes
 	eff[1,t+1]<-MAT[1,1,t+1];
 	eff[2,t+1]<-MAT[1,2,t+1];
@@ -145,7 +147,7 @@ modAppli <- function(parametre){
     
   }# fin boucle scenarios AS
   #return(sorties)
-  return(eff)
+  return(sorties)
 } # fin fonction du modele
 
 # END
@@ -209,21 +211,19 @@ sim1<-sim1 %>% rename( Etat = Var2,
 
 
 # Faire le graphique avec ggplot2
-install.packages("RColorBrewer")
 library(RColorBrewer)
-install.packages("ggnewscale")
 library(ggnewscale)
 
-ggplot(data=sim1, aes(x="Temps (j)", y=Effectif, color=Etat, linetype=Etat)) +
-  geom_line(data = sim1, mapping = aes(linetype = Etat)) +
-  scale_linetype_manual(values =c("Snn"= 2, "INnn"=3))+
-  new_scale("linetype")+
-  geom_line(
-    data= sim1 %>% mutate() 
-  )
-  scale_color_manual(values= c(brewer.pal(10, "Set3"), brewer.pal(2, "Set3")))+
-  ggtitle("Evolution des effectifs par classe d'age et état de santé")+
-  theme_bw()
+# ggplot(data=sim1, aes(x="Temps (j)", y=Effectif, color=Etat, linetype=Etat)) +
+#   geom_line(data = sim1, mapping = aes(linetype = Etat)) +
+#   scale_linetype_manual(values =c("Snn"= 2, "INnn"=3))+
+#   new_scale("linetype")+
+#   geom_line(
+#     data= sim1 %>% mutate() 
+#   )
+#   scale_color_manual(values= c(brewer.pal(10, "Set3"), brewer.pal(2, "Set3")))+
+#   ggtitle("Evolution des effectifs par classe d'age et état de santé")+
+#   theme_bw()
 
 
 
@@ -253,14 +253,60 @@ ggplot(data=sim1, aes(x="Temps (j)", y=Effectif, color=Etat, linetype=Etat)) +
 # Exemple 
   
 # Utilisation de la fonction fast99 du package sensitivity 
-install.packages('sensitivity')
 library(sensitivity)
-x <- fast99(model = modAppli, factors = c("sr", "m1", "m2","m3","f2","f3","t1","t2",
-                                          "trans","lat","rec","loss","madd"), n = 1000,
-              q = "qunif", q.arg = list(min = 0, max = 1))
-print(x)
-plot(x)
   
+# 2 manieres de lancer l'analyse FAST :
+  # Soit en mettant directement le modele dans la fonction
+  # Soit en appelant la fonction avec le modele nul, puis en utilisant la fonction tell()
+# Utile dans le cas d'un mmodele assez lourd et gourmand en analyse
+
+
+# On genere le design experimental : 
+sa <- fast99(model = NULL, factors = parameters, n = 10,
+              q = "qunif", q.arg = param_ranges)
+sa
+# at this stage, only the design of experiment (sa$x) was generated
+# the response is computed "manually":
+sa$x
+
+n <- nrow(sa$x)
+y <- numeric(n)
+tell(sa, sim1) # tell(x= sensitivity analysis object, y = the response)
+print(sa)
+plot(x)
+
+
+y <- sobol.fun(sa$x) # at this place could be a
+# call to an external code
+
+# then, the sensitivity analysis:
+
+tell(sa, y)
+print(sa)
+
+
+library(sensitivity)
+
+# Définir les paramètres et les plages de valeurs
+parameters <- c("sr", "m1", "m2","m3","f2","f3","t1","t2",
+                "trans","lat","rec","loss","madd")
+param_ranges <- list(min = 0, max = 1)
+
+# Utiliser fast99 pour créer l'objet sa (avec model = NULL)
+sa <- fast99(model = NULL, x = NULL, y = NULL, factors = parameters, n=10)
+
+# Utiliser tell pour générer le design expérimental
+experiments <- tell(sa, n = 100, distribution = "latin.hypercube", 
+                    factor_levels = 5, params = parameters)
+
+# Analyser la sensibilité avec FAST
+fast_results <- fast99(sa, x = experiments$X1, y = experiments$y)
+
+# Afficher les résultats
+print(fast_results)
+
+
+
 # Mes parametres
 # K = parametre[i,1];		# nombre maximal d'individus que le milieu peut supporter
 # sr = parametre[i,2];	# sex-ratio
