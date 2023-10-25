@@ -158,8 +158,8 @@ modAppli <- function(parametre){
 
 
 #Valeur des parametres : 
-ValNominale <- c(100,0.5,0.0014,0.00029,0.0019,0.0019,0.0082,5,1/365,1/365,0.3, #10 parametres
-                 1/5,1/20,1/100,0.001)# 5 parametres maladie
+ValNominale <- c(100,0.5,0.0014,0.00029,0.0019,0.0019,0.0082,5,1/365,1/365, #10 parametres
+                 0.3,1/5,1/20,1/100,0.001)# 5 parametres maladie
 PAR<-matrix(ValNominale, nrow=1)
 PAR
 
@@ -260,22 +260,64 @@ library(sensitivity)
   # Soit en appelant la fonction avec le modele nul, puis en utilisant la fonction tell()
 # Utile dans le cas d'un mmodele assez lourd et gourmand en analyse
 
+# Définir les paramètres et les plages de valeurs
+parameters <- c("K","sr", "m1", "m2","m3","f2","f3","portee","t1","t2",
+                "trans","lat","rec","loss","madd")
+fact<-0.25  # On cree des bornes a +/- 25% de la valeur entree
 
-# On genere le design experimental : 
-sa <- fast99(model = NULL, factors = parameters, n = 10,
-              q = "qunif", q.arg = param_ranges)
-sa
+# Version "lourde"
+param_ranges<- list(
+  list(min = PAR[1]-PAR[1]*fact, max = PAR[1]+PAR[1]*fact), # pour K
+  list(min = PAR[2]-PAR[2]*fact, max = PAR[2]+PAR[2]*fact), # pour sr
+  list(min = PAR[3]-PAR[3]*fact, max = PAR[3]+PAR[3]*fact), # pour m1
+  list(min = PAR[4]-PAR[4]*fact, max = PAR[4]+PAR[4]*fact), # pour m2
+  list(min = PAR[5]-PAR[5]*fact, max = PAR[5]+PAR[5]*fact), # pour m3
+  list(min = PAR[6]-PAR[6]*fact, max = PAR[6]+PAR[6]*fact), # pour f2
+  list(min = PAR[7]-PAR[7]*fact, max = PAR[7]+PAR[7]*fact), # pour f3
+  list(min = PAR[8]-PAR[8]*fact, max = PAR[8]+PAR[8]*fact), # pour portee
+  list(min = PAR[9]-PAR[9]*fact, max = PAR[9]+PAR[9]*fact), # pour t1
+  list(min = PAR[10]-PAR[10]*fact, max = PAR[10]+PAR[10]*fact), # pour t2
+  list(min = PAR[11]-PAR[11]*fact, max = PAR[11]+PAR[11]*fact), # pour trans
+  list(min = PAR[12]-PAR[12]*fact, max = PAR[12]+PAR[12]*fact), # pour lat
+  list(min = PAR[13]-PAR[13]*fact, max = PAR[13]+PAR[13]*fact), # pour rec
+  list(min = PAR[14]-PAR[14]*fact, max = PAR[14]+PAR[14]*fact), # pour loss
+  list(min = PAR[15]-PAR[15]*fact, max = PAR[15]+PAR[15]*fact) # pour madd
+)# Creation de la liste avec les bornes par parametre
+
+# Version boucle
+# param_ranges<-list(min = PAR[1]-PAR[1]*fact, max = PAR[1]+PAR[1]*fact) # On cree l'objet contenant les bornes min et max de chaque parametre
+# for(i in 2:length(PAR)-1){
+#   param_ranges[i]<-list(param_ranges[i-1],list(min = PAR[i]-PAR[i]*fact, max = PAR[i]-PAR[i]*fact))
+# }  ##### NE FONCTIONNE PAS, a perfectionner parce que la version lourde est vraiment pas opti 
+
+View(param_ranges)
+
+# Utiliser fast99 pour créer l'objet sa (avec model = NULL)
+parameters
+param_ranges
+sa <- fast99(model = NULL, factors = parameters, n=15, q = "qunif", q.arg = param_ranges)
+sa$X
+
+# Utiliser tell pour générer le design expérimental
+# experiments <- tell(sa, n = 10, distribution = "latin.hypercube", # pas sure que ce soit necessaire
+#                     factor_levels = 5, params = parameters)
+
+# Analyser la sensibilité avec FAST
+# fast_results <- fast99(sa, x = experiments$X1, y = experiments$y)
+
 # at this stage, only the design of experiment (sa$x) was generated
 # the response is computed "manually":
 sa$x
-
 n <- nrow(sa$x)
 y <- numeric(n)
 tell(sa, sim1) # tell(x= sensitivity analysis object, y = the response)
 print(sa)
 plot(x)
+# Afficher les résultats
+print(fast_results)
 
 
+# Analyse Sobol
 y <- sobol.fun(sa$x) # at this place could be a
 # call to an external code
 
@@ -283,45 +325,3 @@ y <- sobol.fun(sa$x) # at this place could be a
 
 tell(sa, y)
 print(sa)
-
-
-library(sensitivity)
-
-# Définir les paramètres et les plages de valeurs
-parameters <- c("sr", "m1", "m2","m3","f2","f3","t1","t2",
-                "trans","lat","rec","loss","madd")
-param_ranges <- list(min = 0, max = 1)
-
-# Utiliser fast99 pour créer l'objet sa (avec model = NULL)
-sa <- fast99(model = NULL, x = NULL, y = NULL, factors = parameters, n=10)
-
-# Utiliser tell pour générer le design expérimental
-experiments <- tell(sa, n = 100, distribution = "latin.hypercube", 
-                    factor_levels = 5, params = parameters)
-
-# Analyser la sensibilité avec FAST
-fast_results <- fast99(sa, x = experiments$X1, y = experiments$y)
-
-# Afficher les résultats
-print(fast_results)
-
-
-
-# Mes parametres
-# K = parametre[i,1];		# nombre maximal d'individus que le milieu peut supporter
-# sr = parametre[i,2];	# sex-ratio
-# m1 = parametre[i,3];	# mortalité naturelle des nouveaux-nés
-# m2 = parametre[i,4];	# mortalité naturelle des jeunes
-# m3 = parametre[i,5];	# mortalité naturelle des adultes
-# f2 = parametre[i,6];	# taux de fécondité des jeunes
-# f3 = parametre[i,7];	# taux de fécondité des adultes
-# portee = parametre[i,8];	# effectif maximal d'une portée
-# t1 = parametre[i,9];	# probabilité de passage de la classe d'âge "nouveau-né" à "jeune"
-# t2 = parametre[i,10];	# probabilité de passage de la classe d'âge "jeune" à "adulte"
-# 
-# # Parametres lies a l'AP
-# trans = parametre[i,11]; # force d'infection
-# lat = parametre[i,12];	# taux de la latence
-# rec = parametre[i,13];	# taux de passage à un état d'immmunité
-# loss = parametre[i,14];	# taux de passage d'un état d'immunité à un état sensible (sain)
-# madd = parametre[i,15];	# mortalité lié à l'infection par l'AP
