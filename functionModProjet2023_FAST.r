@@ -253,9 +253,12 @@ fact<-0.25  # On cree des bornes a +/- 25% de la valeur entree
 
 bornes<-apply( X = cbind(binf = ValNominale*0.75, bsup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])})
 head(bornes) # 
-fast<-fast99(model = NULL, factors = parameters, n = 1000, q = rep("qunif",15), q.arg = bornes)
+fast<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = bornes)
 Res<-fast$X
+length(Res[,1]) # 1500 lignes, car 15 param * 100 scenarios
 FAST<-modAppli(Res)
+FAST
+plot(FAST)
 par(mfrow=c(1,1))
 hist(FAST[,1]) # Pour K
 hist(FAST[,2])
