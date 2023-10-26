@@ -436,7 +436,7 @@ ParamNames = c("K", "sr", "m1", "m2", "m3", "f2", "f3", "portee", "t1", "t2", "t
 
 # Gammes de variation des paramètres
 ParamRanges = data.frame(
-  lower = ValNominale * 0.25,
+  lower = ValNominale * 0.75,
   upper = ValNominale * 1.25
 )
 
@@ -502,18 +502,35 @@ ggplot(SensitivityResults, aes(x = Val, y = Sensitivity1)) +
                      labels = c("Taux d'infecté dernier jour", "Incidence dernier jour")) +
   coord_cartesian(ylim = c(0, 1.25))
 
-
 # Plot des résultats Nombre d'infectés infectieux et l'incidence à l'année
 ggplot(SensitivityResults, aes(x = Val, y = Sensitivity3)) +
   geom_line(aes(color = "Sensitivity3")) +
   geom_line(data = SensitivityResults, aes(x = Val, y = Sensitivity4, color = "Sensitivity4")) +
-  labs(x = "Valeurs des paramètres", y = "Valeurs des indices calculés",colour = NULL) +
+  labs(x = "Valeurs des paramètres", y = "Valeurs des indices calculés", colour = NULL) +
   facet_wrap(~Parameter, scales = "free") +
   theme_minimal() +
-  scale_color_manual(values = c("Sensitivity3" = "green","Sensitivity4" = "purple"),
+  scale_color_manual(values = c("Sensitivity3" = "green", "Sensitivity4" = "purple"),
                      labels = c("Nombre d'infecté infectieux", "Somme de l'incidence à l'année")) +
   coord_cartesian(ylim = c(0, 400))
+
 ```
+
+d. Interpréter les résultats et expliciter des limites possibles
+
+La variation des paramètres **K**, **loss**, **portee**, **rec**, **sr** et **trans** ont un impact sur les sorties du modèle, ils ont donc une sensibilité. En augmentant la valeur de ces paramètres on augmente également le nombre d'infecté le dernier jour, l'incidence le dernier jour, le nombre d'infectieux ainsi que l'incidence d'une année. \
+- La valeur de **K** a donc un impact sur la dynamique de la maladie, plus le milieu peut supporter un grand nombre d'individu, plus l'incidence du dernier jour et l'incidence à l'année sera grand. \
+- Le paramètre **loss** soit le taux de perte de l'immunité d'un individu impact également la dynamique de la maladie. Quand ce taux augmente, les incidences augmentent également. \
+- Le paramètre **portée** impact légèrement le modèle. En augmentant le nombre maximal d'une portée on augmente légèrement les incidences de l'agent pathogène. \
+- Le paramètre **rec** (taux d'immunisation) diminu légèrement le taux d'infecté le dernier jour ainsi que le nombre d'infectieux total. \
+- **sr** exprime le sex-ratio. \
+- Le paramètre **trans** qui transcrit le taux de transmission augmente le nombre d'infectés et les incidences quand il augmente. \
+Globalement, les paramètres avec les plus grandes sensibilités sont **K** et **loss**.
+
+
+- L'analyse OAT suppose que les paramètres sont indépendants, elle ne tient pas compte d'une potentielle interaction.
+- Les valeurs testées sont déterminées suite à des hypothèses donc subjectives.
+- Ces valeurs ne contienent pas toutes les valeurs biologiques possibles ce qui peut consuire à une sous-estimation de l'impact des paramètres
+
 
 3.  Analyse de sensibilité : Méthode Morris
 
