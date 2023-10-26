@@ -168,6 +168,7 @@ PAR
 
 # Simulation 1
 sim1<-modAppli(parametre = PAR)
+sim1
 # length(sim1) # 11680
 sim1<-t(sim1)
 colnames(sim1)<- 1:16 
@@ -225,30 +226,9 @@ library(ggnewscale)
 #   ggtitle("Evolution des effectifs par classe d'age et état de santé")+
 #   theme_bw()
 
-
-
-# Analyse de sensibilité du modèle ----------------------------------------
-
-
-# Methode OAT -------------------------------------------------------------
-
-
-
-# Méthode Morris ----------------------------------------------------------
-
-
   
 
 # Méthode FAST ------------------------------------------------------------
-
-#  Lien pour la méthode sur R : https://rdrr.io/cran/fast/man/sensitivity.html 
-
-# sensitivity(x, numberf, order = 4, make.plot = FALSE, show.legend
-#                  = TRUE, plot.max = max(ff[-1]), include.total.variance
-#                  = FALSE, cukier = TRUE, names = paste(sep = "", "P",
-#                  1:numberf), main = "", xlab = "frequency", ylab =
-#                  "Fourier Coef", pch = rep(0, numberf), col =
-#                  (1:numberf) + 1, reorder = 1:numberf, ...)
 
 # Exemple 
   
@@ -261,108 +241,24 @@ library(sensitivity)
 # Utile dans le cas d'un mmodele assez lourd et gourmand en analyse
 
 # Définir les paramètres et les plages de valeurs
-parameters <- c("K","sr", "m1", "m2","m3","f2","f3","portee","t1","t2",
-                "trans","lat","rec","loss","madd")
-fact<-0.25  # On cree des bornes a +/- 25% de la valeur entree
-
-# Version "lourde"
-param_ranges<- list(
-  list(min = PAR[1]-PAR[1]*fact, max = PAR[1]+PAR[1]*fact), # pour K
-  list(min = PAR[2]-PAR[2]*fact, max = PAR[2]+PAR[2]*fact), # pour sr
-  list(min = PAR[3]-PAR[3]*fact, max = PAR[3]+PAR[3]*fact), # pour m1
-  list(min = PAR[4]-PAR[4]*fact, max = PAR[4]+PAR[4]*fact), # pour m2
-  list(min = PAR[5]-PAR[5]*fact, max = PAR[5]+PAR[5]*fact), # pour m3
-  list(min = PAR[6]-PAR[6]*fact, max = PAR[6]+PAR[6]*fact), # pour f2
-  list(min = PAR[7]-PAR[7]*fact, max = PAR[7]+PAR[7]*fact), # pour f3
-  list(min = PAR[8]-PAR[8]*fact, max = PAR[8]+PAR[8]*fact), # pour portee
-  list(min = PAR[9]-PAR[9]*fact, max = PAR[9]+PAR[9]*fact), # pour t1
-  list(min = PAR[10]-PAR[10]*fact, max = PAR[10]+PAR[10]*fact), # pour t2
-  list(min = PAR[11]-PAR[11]*fact, max = PAR[11]+PAR[11]*fact), # pour trans
-  list(min = PAR[12]-PAR[12]*fact, max = PAR[12]+PAR[12]*fact), # pour lat
-  list(min = PAR[13]-PAR[13]*fact, max = PAR[13]+PAR[13]*fact), # pour rec
-  list(min = PAR[14]-PAR[14]*fact, max = PAR[14]+PAR[14]*fact), # pour loss
-  list(min = PAR[15]-PAR[15]*fact, max = PAR[15]+PAR[15]*fact) # pour madd
-)# Creation de la liste avec les bornes par parametre
-
-# Version boucle
-# param_ranges<-list(min = PAR[1]-PAR[1]*fact, max = PAR[1]+PAR[1]*fact) # On cree l'objet contenant les bornes min et max de chaque parametre
-# for(i in 2:length(PAR)-1){
-#   param_ranges[i]<-list(param_ranges[i-1],list(min = PAR[i]-PAR[i]*fact, max = PAR[i]-PAR[i]*fact))
-# }  ##### NE FONCTIONNE PAS, a perfectionner parce que la version lourde est vraiment pas opti 
-
-View(param_ranges)
-
-# Utiliser fast99 pour créer l'objet sa (avec model = NULL)
 parameters
 param_ranges
 parameters <- c("K","sr", "m1", "m2","m3","f2","f3","portee","t1","t2",
                 "trans","lat","rec","loss","madd")
 fact<-0.25  # On cree des bornes a +/- 25% de la valeur entree
 
-# Version "lourde"
-param_ranges<- list(
-  list(min = PAR[1]-PAR[1]*fact, max = PAR[1]+PAR[1]*fact), # pour K
-  list(min = PAR[2]-PAR[2]*fact, max = PAR[2]+PAR[2]*fact), # pour sr
-  list(min = PAR[3]-PAR[3]*fact, max = PAR[3]+PAR[3]*fact), # pour m1
-  list(min = PAR[4]-PAR[4]*fact, max = PAR[4]+PAR[4]*fact), # pour m2
-  list(min = PAR[5]-PAR[5]*fact, max = PAR[5]+PAR[5]*fact), # pour m3
-  list(min = PAR[6]-PAR[6]*fact, max = PAR[6]+PAR[6]*fact), # pour f2
-  list(min = PAR[7]-PAR[7]*fact, max = PAR[7]+PAR[7]*fact), # pour f3
-  list(min = PAR[8]-PAR[8]*fact, max = PAR[8]+PAR[8]*fact), # pour portee
-  list(min = PAR[9]-PAR[9]*fact, max = PAR[9]+PAR[9]*fact), # pour t1
-  list(min = PAR[10]-PAR[10]*fact, max = PAR[10]+PAR[10]*fact), # pour t2
-  list(min = PAR[11]-PAR[11]*fact, max = PAR[11]+PAR[11]*fact), # pour trans
-  list(min = PAR[12]-PAR[12]*fact, max = PAR[12]+PAR[12]*fact), # pour lat
-  list(min = PAR[13]-PAR[13]*fact, max = PAR[13]+PAR[13]*fact), # pour rec
-  list(min = PAR[14]-PAR[14]*fact, max = PAR[14]+PAR[14]*fact), # pour loss
-  list(min = PAR[15]-PAR[15]*fact, max = PAR[15]+PAR[15]*fact) # pour madd
-)# Creation de la liste avec les bornes par parametre
 
-# Version boucle
-# param_ranges<-list(min = PAR[1]-PAR[1]*fact, max = PAR[1]+PAR[1]*fact) # On cree l'objet contenant les bornes min et max de chaque parametre
-# for(i in 2:length(PAR)-1){
-#   param_ranges[i]<-list(param_ranges[i-1],list(min = PAR[i]-PAR[i]*fact, max = PAR[i]-PAR[i]*fact))
-# }  ##### NE FONCTIONNE PAS, a perfectionner parce que la version lourde est vraiment pas opti 
+# faire une liste avec les parametres min et max 
+# 1 liste de min et une liste de max . Liste *0.75 et liste max *1.25
 
-View(param_ranges)
-
-# Utiliser fast99 pour créer l'objet sa (avec model = NULL)
-parameters
-param_ranges
-sa <- fast99(model = NULL, factors = parameters, n=15, q = "qunif", q.arg = param_ranges)
-sa$X
-
-# Utiliser tell pour générer le design expérimental
-# experiments <- tell(sa, n = 10, distribution = "latin.hypercube", # pas sure que ce soit necessaire
-#                     factor_levels = 5, params = parameters)
-
-# Analyser la sensibilité avec FAST
-# fast_results <- fast99(sa, x = experiments$X1, y = experiments$y)
-
-# at this stage, only the design of experiment (sa$x) was generated
-# the response is computed "manually":
-sa$x
-n <- nrow(sa$x)
-y <- numeric(n)
-tell(sa, sim1) # tell(x= sensitivity analysis object, y = the response)
-print(sa)
-plot(x)
-# Afficher les résultats
-print(fast_results)
+bornes<-apply( X = cbind(binf = ValNominale*0.75, bsup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])})
+head(bornes) # 
+fast<-fast99(model = NULL, factors = parameters, n = 1000, q = rep("qunif",15), q.arg = bornes)
+Res<-fast$X
+FAST<-modAppli(Res)
+par(mfrow=c(1,1))
+hist(FAST[,1]) # Pour K
+hist(FAST[,2])
+# Faire pour toutes les sorties
 
 
-# Analyse Sobol
-y <- sobol.fun(sa$x) # at this place could be a
-# call to an external code
-
-# then, the sensitivity analysis:
-
-tell(sa, y)
-print(sa)
-
-
-
-# Essayer Fast directement avec le modele et sans passer par le design expérimental ? 
-  # fast99(model = NULL, factors = parameters, n=15, q = "qunif", q.arg = param_ranges)
-fast99(model = modAppli, factors = parameters, n = 15, q="unif", q.args = param_ranges)
- # Erreur avec q.args[[j]] : indice hors limites 
