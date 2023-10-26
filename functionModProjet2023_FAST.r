@@ -295,6 +295,40 @@ View(param_ranges)
 # Utiliser fast99 pour créer l'objet sa (avec model = NULL)
 parameters
 param_ranges
+parameters <- c("K","sr", "m1", "m2","m3","f2","f3","portee","t1","t2",
+                "trans","lat","rec","loss","madd")
+fact<-0.25  # On cree des bornes a +/- 25% de la valeur entree
+
+# Version "lourde"
+param_ranges<- list(
+  list(min = PAR[1]-PAR[1]*fact, max = PAR[1]+PAR[1]*fact), # pour K
+  list(min = PAR[2]-PAR[2]*fact, max = PAR[2]+PAR[2]*fact), # pour sr
+  list(min = PAR[3]-PAR[3]*fact, max = PAR[3]+PAR[3]*fact), # pour m1
+  list(min = PAR[4]-PAR[4]*fact, max = PAR[4]+PAR[4]*fact), # pour m2
+  list(min = PAR[5]-PAR[5]*fact, max = PAR[5]+PAR[5]*fact), # pour m3
+  list(min = PAR[6]-PAR[6]*fact, max = PAR[6]+PAR[6]*fact), # pour f2
+  list(min = PAR[7]-PAR[7]*fact, max = PAR[7]+PAR[7]*fact), # pour f3
+  list(min = PAR[8]-PAR[8]*fact, max = PAR[8]+PAR[8]*fact), # pour portee
+  list(min = PAR[9]-PAR[9]*fact, max = PAR[9]+PAR[9]*fact), # pour t1
+  list(min = PAR[10]-PAR[10]*fact, max = PAR[10]+PAR[10]*fact), # pour t2
+  list(min = PAR[11]-PAR[11]*fact, max = PAR[11]+PAR[11]*fact), # pour trans
+  list(min = PAR[12]-PAR[12]*fact, max = PAR[12]+PAR[12]*fact), # pour lat
+  list(min = PAR[13]-PAR[13]*fact, max = PAR[13]+PAR[13]*fact), # pour rec
+  list(min = PAR[14]-PAR[14]*fact, max = PAR[14]+PAR[14]*fact), # pour loss
+  list(min = PAR[15]-PAR[15]*fact, max = PAR[15]+PAR[15]*fact) # pour madd
+)# Creation de la liste avec les bornes par parametre
+
+# Version boucle
+# param_ranges<-list(min = PAR[1]-PAR[1]*fact, max = PAR[1]+PAR[1]*fact) # On cree l'objet contenant les bornes min et max de chaque parametre
+# for(i in 2:length(PAR)-1){
+#   param_ranges[i]<-list(param_ranges[i-1],list(min = PAR[i]-PAR[i]*fact, max = PAR[i]-PAR[i]*fact))
+# }  ##### NE FONCTIONNE PAS, a perfectionner parce que la version lourde est vraiment pas opti 
+
+View(param_ranges)
+
+# Utiliser fast99 pour créer l'objet sa (avec model = NULL)
+parameters
+param_ranges
 sa <- fast99(model = NULL, factors = parameters, n=15, q = "qunif", q.arg = param_ranges)
 sa$X
 
@@ -325,3 +359,10 @@ y <- sobol.fun(sa$x) # at this place could be a
 
 tell(sa, y)
 print(sa)
+
+
+
+# Essayer Fast directement avec le modele et sans passer par le design expérimental ? 
+  # fast99(model = NULL, factors = parameters, n=15, q = "qunif", q.arg = param_ranges)
+fast99(model = modAppli, factors = parameters, n = 15, q="unif", q.args = param_ranges)
+ # Erreur avec q.args[[j]] : indice hors limites 
