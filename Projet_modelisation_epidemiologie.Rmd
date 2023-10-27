@@ -1,3 +1,4 @@
+Modification-du-modèle
 ---
 title: "Projet_modélisation_épidémiologie"
 author: "Chloe Perou - Raphaelle LeBailly"
@@ -44,9 +45,9 @@ On considère dans ce modèle :
 
 \- *S* : Sain
 
-\- *IN* : Infecté neutre
+\- *IN* : Latent
 
-\- *II* : Infecté infectieux
+\- *II* : Infectieux
 
 \- *R* : Remis
 
@@ -59,8 +60,6 @@ En sortie on a une matrice avec en ligne les paramètres et 4 colonnes.
 15 paramètres au total avec
 
 ## 1.  Description du modèle
-
-<!-- -->
 
 a.  Le modèle est un modèle déterministe (sans facteur aléatoire) à compartiments (états de santé et classe d'âge) à temps discret (par jour).
 
@@ -78,41 +77,46 @@ c.  Equations associées :
 
 **Classe d'âge NN (nouveaux nés)**
 
-$$S_{NN_{t+1}} = S_{NN_t} (1 - m_{1} - t_{1} - \frac{trans . II_{N_t}}{N}) + loss . R_{NN_t} + max( 0,\ s_{R} . portee . \sum_{J} . f_{2}) + \sum_{A} . f_{3} (1 - \frac{N}{K}) $$
+$$S_{NN_{t+1}} = S_{NN_t} (1 - m_{1} - t_{1} - \frac{trans . I_{N_t}}{N}) + loss . R_{NN_t} + max( 0,\ s_{R} . portee . \sum_{J} . f_{2}) + \sum_{A} . f_{3} (1 - \frac{N}{K}) $$
 
-$$IN_{NN_{t+1}} = IN_{NN_t}(1 - m_{1} - t{1} - \text{lat}) + \frac{\text{trans} . S_{NN_t} . II_{N_t}}{N}$$
+$$L_{NN_{t+1}} = L_{NN_t}(1 - m_{1} - t{1} - \text{lat}) + \frac{\text{trans} . S_{NN_t} . I_{N_t}}{N}$$
 
-$$II_{NN{t+1}} = II_{NN_t}(1 - m_{1} - madd - t_{1} - rec) + lat . IN_{NN_t}$$
+$$I_{NN{t+1}} = I_{NN_t}(1 - m_{1} - madd - t_{1} - rec) + lat . L_{NN_t}$$
 
-$$R_{NN{t+1}} = R_{NN_t}(1 - m_{1} - t_{1} - loss) + rec . II_{NN_t}$$
+$$R_{NN{t+1}} = R_{NN_t}(1 - m_{1} - t_{1} - loss) + rec . I_{NN_t}$$
 
 **Classe d'âge J (jeunes)**
 
-$$S_{J_{t+1}} = S_{NN_t}.t_{1} + S_{J_t}(1 - m_{2} - t_{2} - \frac{trans . II_{N_t}}{N}) + loss.R_{J_t}$$
+$$S_{J_{t+1}} = S_{NN_t}.t_{1} + S_{J_t}(1 - m_{2} - t_{2} - \frac{trans . I_{N_t}}{N}) + loss.R_{J_t}$$
 
-$$IN_{J_{t+1}} = IN_{NN_t}.t_{1} + IN_{J_t}(1 - m_{2} - t_{2} - lat) + \frac{trans.S_{J_t}.II_{N_t}}{N}$$
+$$L_{J_{t+1}} = L_{NN_t}.t_{1} + IN_{J_t}(1 - m_{2} - t_{2} - lat) + \frac{trans.S_{J_t}.I_{N_t}}{N}$$
 
-$$II_{J_{t+1}} = II_{NN_t}.t_{1} + II_{J_t}(1 - m_{2} - madd - t_{2} - rec) + lat.IN_{J_t}$$
+$$I_{J_{t+1}} = I_{NN_t}.t_{1} + I_{J_t}(1 - m_{2} - madd - t_{2} - rec) + lat.L_{J_t}$$
 
-$$R_{J_{t+1}} = R_{NN_t}.t_{1} + R{J_t}(1 - m_{2} - t_{2} - loss) + rec.II_{J_t}$$
+$$R_{J_{t+1}} = R_{NN_t}.t_{1} + R{J_t}(1 - m_{2} - t_{2} - loss) + rec.I_{J_t}$$
 
 **Classe d'âge A (adultes)**
 
-$$S_{A_{t+1}} = S_{J_t}.t_{2} + S_{A_t}(1 - m_{3} - \frac{trans.II_{N_t}}{N}) + loss.R_{A_t}$$
+$$S_{A_{t+1}} = S_{J_t}.t_{2} + S_{A_t}(1 - m_{3} - \frac{trans.I_{N_t}}{N}) + loss.R_{A_t}$$
 
-$$IN_{A_{t+1}} = IN_{J_t}.t_{2} + IN_{A_t}(1 - m_{3} - lat) + \frac{trans.S_{A_t}.II_{N_t}}{N}$$
+$$L_{A_{t+1}} = L_{J_t}.t_{2} + L_{A_t}(1 - m_{3} - lat) + \frac{trans.S_{A_t}.I_{N_t}}{N}$$
 
-$$II_{A_{t+1}}= II_{J_t}.t_{2} + II{A_t}(1 - m_{3} - madd - rec) + lat.IN_{A_t}$$
+$$I_{A_{t+1}}= I_{J_t}.t_{2} + I{A_t}(1 - m_{3} - madd - rec) + lat.L_{A_t}$$
 
-$$R_{A_{t+1}}=R_{J_t}.t_{2}+R_{A_t}(1-m_{3}-loss)+rec.II_{A_t}$$
+$$R_{A_{t+1}}=R_{J_t}.t_{2}+R_{A_t}(1-m_{3}-loss)+rec.I_{A_t}$$
 
-**Total** $$S_{N_{t+1}}=S_{NN_{t+1}}+S_{J_{t+1}}+S_{A_{t+1}}$$
+**Total** 
+$$S_{N_{t+1}}=S_{NN_{t+1}}+S_{J_{t+1}}+S_{A_{t+1}}$$
 
-$$IN_{N_{t+1}}=IN_{NN_{t+1}}+IN_{J_{t+1}}+IN_{A_{t+1}}$$
+$$L_{N_{t+1}}=L_{NN_{t+1}}+L_{J_{t+1}}+L_{A_{t+1}}$$
 
-$$II_{N_{t+1}}=II_{NN_{t+1}}+II_{J_{t+1}}+II_{A_{t+1}}$$
+$$I_{N_{t+1}}=I_{NN_{t+1}}+I_{J_{t+1}}+I_{A_{t+1}}$$
 
 $$R_{N_{t+1}}=R_{NN_{t+1}}+R_{J_{t+1}}+R_{A_{t+1}}$$
+
+**Niveau d'"infectiosité" de l'agent pathogène par jour**
+
+$$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{I_{N_t}}{N})$$
 
 **Niveau d'"infectiosité" de l'agent pathogène par jour**
 
@@ -140,11 +144,11 @@ f.  Initialement il y a :
 -   27 Nouveaux-nés sains
 -   23 Jeunes sains
 -   36 Adultes sains
--   1 Adulte infecté infectieux
+-   1 Adulte infectieux
 
 g.  Les sorties possibles du modèle sont :
 
--   Taux d'infectés (neutres et infectieux) le dernier jour
+-   Taux d'infectés (latents et infectieux) le dernier jour
 -   Incidence de l'AP au dernier jour
 -   Nombre maximum d'infectés infectieux sur la période de temps étudiée
 -   Incidence de l'AP pour 1 an
@@ -327,13 +331,6 @@ ValNominale = c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365,
 Par=matrix(ValNominale,nrow=1,ncol=15)
 sol = modAppli(Par)
 ```
-
-2.  Analyse de sensibilité : Méthode OAT
-
-<!-- -->
-
-
-
 
 ## 2. Analyse de sensibilité : méthode OAT
 
@@ -535,7 +532,7 @@ Globalement, les paramètres avec les plus grandes sensibilités sont **K** et *
 - Ces valeurs ne contienent pas toutes les valeurs biologiques possibles ce qui peut consuire à une sous-estimation de l'impact des paramètres
 
 
-3.  Analyse de sensibilité : Méthode Morris
+## 3.  Analyse de sensibilité : Méthode Morris
 
 ```{r, echo = F}
 # Définir les paramètres de l'analyse Morris
@@ -572,9 +569,47 @@ abline(h = 0.1)
 
 
 
-4.  Analyse de sensibilité : Méthode FAST
+## 4.  Analyse de sensibilité : Méthode FAST
 
 Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
+a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
+
+```{r}
+library(sensitivity)
+```
+
+Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol. 
+
+Le principe est de choisir pour cette étude : 
+- Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.*
+- Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.*
+- Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
+
+Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*. 
+
+En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque variable d'entrée étudiée et des graphiques nous permettent de nous représenter les effets des différents paramètres.
+
+b. 
+**Pour 100 simulations**
+
+On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'. 
+```{r}
+ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
+
+des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
+des_xp<-des_xp100$X 
+length(des_xp[,1])
+FAST100<-modAppli(des_xp) # Simulation
+
+```
+On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
+
+On peut à présent observer les résultats de l'analyse. 
+
+```{r}
+
+```
+
 
 6.  Modifications du modèle
 
@@ -894,6 +929,3 @@ La variation des paramètres **K**, **lat**, **rec** et **trans_inter** ont un i
 - Le taux de transmission entre individus de la même classe (**trans_inter**) augmente l'incidence du dernier jour et à l'année ainsi que le taux d'infectés et le nombre d'infectieux. \
 
 Dans ce modèle, les paramètres **loss**, **portee** et **sr** n'ont plus une très grande sensibilité. En ravanche, les paramètres **K**, **lat**, **rec** et **trans** sont toujours sensibles. Le taux de transmission qui a été détaillé en 2 paramètres : taux de transmission inter et intra classe, avec un taux **trans_inter** supérieur montre que sa sensibilité est plus importante que **trans_intra**.
-
-
-
