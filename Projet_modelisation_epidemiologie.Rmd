@@ -1,4 +1,3 @@
-Modification-du-modèle
 ---
 title: "Projet_modélisation_épidémiologie"
 author: "Chloe Perou - Raphaelle Lebailly"
@@ -108,7 +107,6 @@ $$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{I_{N_t}}{N})$$
 ```{r}
 knitr::include_graphics("Schema_MEPI.png")
 ```
-
 ### e. Les hypothèses principales du modèle sont :
 
 Paramètres démographiques :
@@ -202,7 +200,7 @@ modAppli <- function(parametre){
     nvinf <- array(0, dim=c(temps));
     
     #Plot
-    plot(x = NA, y = NA, xlim = c(0, 400), ylim = c(0, 35),
+    plot(x = NA, y = NA, xlim = c(0, 730), ylim = c(0, 35),
          type = "n", xlab = "Temps (jours)", ylab = "Nombre d'individus")
 
     # conditions initiales (la population est a sa structure d'equilibre, calculee par ailleurs)
@@ -312,23 +310,12 @@ modAppli <- function(parametre){
 } # fin fonction du modele
 
 # END
-ValNominale <- c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365, 
+ValNominale = c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365, 
                 1/365, 0.3, 1/5, 1/20, 1/100, 0.001)
 
-Par <- matrix(ValNominale,nrow=1,ncol=15)
-sol <- modAppli(Par)
-colnames(sol) <- c("Tx_infecté", "Last_incidence", "Nbr_infectes", "YearIncidence")
-sol
-
+Par=matrix(ValNominale,nrow=1,ncol=15)
+sol = modAppli(Par)
 ```
-
-Avec les valeurs nominales, une vague d'infection se propage dans la population mais la maladie est rapidement ralentie car des individus sont remis. Néanmoins, l'agent pathogène reste présent dans la population avec une proportion d'infectés stable. \
-La modélisation dure 2 ans donc les sorties calculées le dernier jour sont stables et renseignent sur la dynamique du modèle.
-
-Le taux d'infectés au dernier jour de la modélisation  est de 0,18.\
-L'incidence au dernier jour de la modélisation est de 0,65.\
-Le nombre maximal d'infectés en une journée est de 37,2.\
-La somme de l'incidence sur une année est de 280,9.
 
 ## 2. Analyse de sensibilité : méthode OAT
 
@@ -579,7 +566,6 @@ morris_results <- morris(model = modAppli,
                          binf = lower,
                          bsup = upper,
                          scale=T)
-
 ```
 
 Visualiser les résultats
@@ -601,7 +587,6 @@ abline(h = 0.1)
 ```
 
 ## 4. Analyse de sensibilité : Méthode FAST
-
 Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
 ### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
 
@@ -624,22 +609,16 @@ En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque
 
 ### b. **Pour 100 simulations**
 
-On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'.
-
+On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'. 
 ```{r}
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
 
-des_xp100<-fast99(model = NULL, 
-                  factors = ParamNames, 
-                  n = 100, 
-                  q = rep("qunif",15), 
-                  q.arg = ParamRanges) # Pour creer le design expérimental
+des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp1<-des_xp100$X # On conserve le tableau avec les variations par paramètres
 length(des_xp1[,1]) # Longueur du tableau
-
 ```
 
-On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios.
+On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
 
 ### c. Variation des paramètres
 
@@ -650,14 +629,13 @@ Ici, on représente les variations des paramètres 2 à 2 ici on ne représente 
 plot(des_xp1[1:200,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres")
 plot(des_xp1[1:200,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres")
 ```
-
-L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux.
+L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux. 
 
 *A priori*, on peut voir que l'espace est assez bien rempli.
 
 ### d. Pour 1000 trajectoires
 
-On effectue les mêmes démarches pour 1000 scénarios.
+On effectue les mêmes démarches pour 1000 scénarios. 
 
 ```{r}
 des_xp1000<-fast99(model = NULL, 
@@ -667,7 +645,6 @@ des_xp1000<-fast99(model = NULL,
                    q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp2<-des_xp1000$X # On conserve le tableau avec les variations par paramètres
 length(des_xp2[,1]) # Longueur du tableau
-
 ```
 
 On obtient donc un tableau de 15000 lignes.
@@ -676,36 +653,45 @@ Et pour le design expérimental :
 
 ```{r, echo = F}
 plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
-plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
+plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres")
 ```
-
 On obtient donc un recouvrement plus important de l'espace que pour seulement 100 simulations.
 
 ### e. Comparaison des deux designs expérimentaux
 
-*A priori*, on a l'impression que pour 100 scénarios, on a un recouvrement plus homogène de l'espace qui suggèrerait potentiellement une analyse FAST plus précise et plus fiable. En revanche, si l'on compare les deux recouvrements, on se rend compte que pour 100 simulations, il y a plus de trous à certains endroits, ce qui rend donc ce paramétrage moins efficace que pour 1000 scénarios.
+*A priori*, on a l'impression que pour 100 scénarios, on a un recouvrement plus homogène de l'espace
+qui suggèrerait potentiellement une analyse FAST plus précise et plus fiable. En revanche, si l'on compare les deux recouvrements, on se rend compte que pour 100 simulations, il y a plus de trous à certains endroits, ce qui rend donc ce paramétrage moins efficace que pour 1000 scénarios.
 
 ```{r, echo = F}
 plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres", col = "orange") 
 points(des_xp1[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres", col = "purple") 
+
 ```
 
 ### f. Lancement de l'analyse avec le modèle
 
-Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST.
+Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST. 
 
 ```{r}
-FAST1<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+FAST1<-fast99(model = modAppli, 
+              factors = ParamNames, 
+              n = 100, 
+              q = rep("qunif",15), 
+              q.arg = ParamRanges)
 ```
 
 ```{r}
-FAST2<-fast99(model = modAppli, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges)
+FAST2<-fast99(model = modAppli, 
+              factors = ParamNames, 
+              n = 1000, 
+              q = rep("qunif",15), 
+              q.arg = ParamRanges)
 ```
+
 
 ### g. Distribution des sorties obtenues
 
 #### Pour 100 simulations
-
 ```{r, echo = F}
 par(mfrow=c(2,2))
 hist(FAST1$y[1:1500], main = "Analyse de sensibilité FAST : sortie 1", xlab = "Valeurs de la sortie 1")
@@ -724,16 +710,15 @@ hist(FAST2$y[3001:4500], main = "Analyse de sensibilité FAST : sortie 3", xlab 
 hist(FAST2$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab = "Valeurs de la sortie 4")
 ```
 
-On peut à présent observer les résultats de l'analyse.
+On peut à présent observer les résultats de l'analyse. 
 
 ```{r, echo = FALSE}
 fast2<-fast99(model = modAppli, 
-              factors = ParamNames,
+              factors = ParamNames, 
               n = 100, 
               q = rep("qunif",15), 
               q.arg = ParamRanges)
 plot(fast2)
-
 
 fast2_df <- as.data.frame(fast2$X)
 # hist(fast2_df$f3)
@@ -774,13 +759,15 @@ length(plot_list)
 plot_list$K
 grid.arrange(grobs = plot_list)  # Ajuste ncol en fonction de la mise en page souhaitée
 
-FAST100 <- modAppli(des_xp) # Simulation
+
+FAST100<-modAppli(des_xp) # Simulation
 hist(FAST100)
 ```
 
-Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle.
+Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle. 
 
-Nous pouvons déjà présenter les effets K, sr, f3 et
+Nous pouvons déjà présenter les effets K, sr, f3 et 
+
 
 ## 6. Modifications du modèle
 
@@ -1267,3 +1254,4 @@ abline(h = 0.1)
 
 Sigma mesure les interactions et les relations non linéaires entre les paramètres.\
 Mu mesure la sensibilité du paramètre.\
+
