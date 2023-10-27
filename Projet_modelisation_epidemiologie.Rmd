@@ -437,7 +437,7 @@ ParamNames = c("K", "sr", "m1", "m2", "m3", "f2", "f3", "portee", "t1", "t2", "t
 ParamRanges = data.frame(
   lower = ValNominale * 0.75,
   upper = ValNominale * 1.25
-)
+  )
 
 # Matrice des paramètres de base
 param_matrix_first <- matrix(ValNominale,
@@ -450,7 +450,7 @@ param_matrix_var <- matrix(0,
                            ncol = length(ValNominale))
 for (i in 1:length(ValNominale)) {
   param_matrix_var[, i] <- seq(ParamRanges$lower[i], ParamRanges$upper[i], length.out = 10)
-}
+  }
 
 # Créer un dataframe qui stock les résultats de la sortie 1 de l'analyse de sensibilité
 SensitivityResults <- data.frame(Parameter = character(0), Sensitivity = numeric(0))
@@ -610,20 +610,20 @@ Vers la droite, la zone détermine les paramètres toujours monotone.\
 Ensuite, les paramètres qui sont monotones.\
 La zone la plus à droite a les paramètres linéaires. 
 
--   La sortie 1 qui exprime le taux d'infectés le dernier jours de la modélisation est modifiée de manière monotone par les paramètres 11, 12, 13 et 14. Ce sont donc les paramètres **trans**, **lat**, **rec** et **loss**. Les variations de ces paramètres sont donc constantes. Les paramètres **loss** et **rec** étaient déjà mis en avant par la méthode OAT.\
--   La sortie 2 qui mesure l'incidence du dernier jours est toujours modifiée de manière monotone par le paramètre 13 soit **rec**. Elle est également influencée de manière monotone par les paramètres 1, 2, 5, 7, 8, 11 et 14 soit **K**, **sr**, **m3**, **f3**, **portee**, **trans** et **loss**. Les paramètres **K**, **trans** et **loss** ont été mis en avant par la méthode OAT.\
--   La sortie 3 est influencée par les paramètres 2, 7 et 8 toujours de manière monotone (**sr**, **f3**, **portee**). Les paramètres 1, 11 et 12 soit **K**, **trans** et **lat** influencent de manière monotone le nombre maxium d'infectieux. Seuls les paramètres **K** et **trans** ont été identifiés par la méthode OAT.\
--   La sortie 4 est influencée par les paramètres **sr**, **f3**, **portee** et **rec** toujours de manière monotone ainsi que par les paramètres **K**, **trans** et **loss** de manière monotone. La méthode OAT avait mis en évidence la sensibilité des 3 paramètres monotones.\
+-   Le taux d'infectés le dernier jours est modifiée de manière monotone par les paramètres 11, 12, 13 et 14. Ce sont donc les paramètres **trans**, **lat**, **rec** et **loss**. Les variations de ces paramètres sont constantes. Les paramètres **loss** et **rec** ont déjà été mis en avant par la méthode OAT.\
+-   L'incidence du dernier jours est toujours modifiée de manière monotone par le paramètre **rec**. Elle est également influencée de manière monotone par les paramètres **K**, **sr**, **m3**, **f3**, **portee**, **trans** et **loss**. Les paramètres **K**, **trans** et **loss** avait été mis en avant par la méthode OAT.\
+-   Le nombre d'infectieux est influencée par les paramètres **sr**, **f3**, **portee** qui sont toujours monotone. Les paramètres **K**, **trans** et **lat** influencent de manière monotone le nombre maxium d'infectieux. Seuls les paramètres **K** et **trans** ont été identifiés par la méthode OAT.\
+-   L'incidence à l'année est influencée par les paramètres **sr**, **f3**, **portee** et **rec** toujours de manière monotone ainsi que par les paramètres **K**, **trans** et **loss** de manière monotone. La méthode OAT avait mis en évidence la sensibilité des 3 paramètres monotones.\
 
-Les paramètres influeçants le plus les sorties sont **K**, **sr**, \*\*portee\*, **trans** et **loss**. Nous ne retrouvons pas le paramètre **rec** qui étaient sensible dans l'analyse OAT.
+Les paramètres influeçants le plus les sorties sont **K**, **sr**, **portee**, **trans** et **loss**.\
+La méthode OAT ne détérmine la sensibilité que des paramètres de classe monotone.
 
 ## 4. Analyse de sensibilité : Méthode FAST
 Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
+
+
 ### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
 
-```{r}
-library(sensitivity)
-```
 
 Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol. 
 
@@ -644,7 +644,11 @@ On définit le design expérimental en premier lieu, puis on l'appelle avec notr
 ```{r}
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
 
-des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
+des_xp100<-fast99(model = NULL, 
+                  factors = ParamNames, 
+                  n = 100, 
+                  q = rep("qunif",15), 
+                  q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp1<-des_xp100$X # On conserve le tableau avec les variations par paramètres
 length(des_xp1[,1]) # Longueur du tableau
 
@@ -671,7 +675,11 @@ L'espace des paramètres est rempli de la même manière quelque soient les para
 On effectue les mêmes démarches pour 1000 scénarios. 
 
 ```{r}
-des_xp1000<-fast99(model = NULL, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
+des_xp1000<-fast99(model = NULL, 
+                   factors = ParamNames, 
+                   n = 1000, 
+                   q = rep("qunif",15), 
+                   q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp2<-des_xp1000$X # On conserve le tableau avec les variations par paramètres
 length(des_xp2[,1]) # Longueur du tableau
 
@@ -705,11 +713,19 @@ points(des_xp1[1:2000,1:2], type='p', main = "Variation des paramètres K et sr"
 Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST. 
 
 ```{r}
-FAST1<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+FAST1<-fast99(model = modAppli, 
+              factors = ParamNames, 
+              n = 100, 
+              q = rep("qunif",15), 
+              q.arg = ParamRanges)
 ```
 
 ```{r}
-FAST2<-fast99(model = modAppli, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges)
+FAST2<-fast99(model = modAppli, 
+              factors = ParamNames, 
+              n = 1000, 
+              q = rep("qunif",15), 
+              q.arg = ParamRanges)
 ```
 
 
@@ -846,13 +862,29 @@ On peut à présent observer les résultats de l'analyse pour les 4 sorties du m
 ```{r, echo = F}
 # On fait 4 fois le FAST pour séparer les différentes sorties
 si<-1
-FAST1A<- fast99(model = modAppli2, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+FAST1A<- fast99(model = modAppli2, 
+                factors = ParamNames, 
+                n = 100, 
+                q = rep("qunif",15), 
+                q.arg = ParamRanges)
 si<-2
-FAST1B<- fast99(model = modAppli2, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+FAST1B<- fast99(model = modAppli2, 
+                factors = ParamNames, 
+                n = 100, 
+                q = rep("qunif",15), 
+                q.arg = ParamRanges)
 si<-3
-FAST1C<- fast99(model = modAppli2, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+FAST1C<- fast99(model = modAppli2, 
+                factors = ParamNames, 
+                n = 100, 
+                q = rep("qunif",15), 
+                q.arg = ParamRanges)
 si<-4
-FAST1D<- fast99(model = modAppli2, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+FAST1D<- fast99(model = modAppli2, 
+                factors = ParamNames, 
+                n = 100, 
+                q = rep("qunif",15), 
+                q.arg = ParamRanges)
 ```
 
 ```{r, echo = F}
@@ -1433,7 +1465,11 @@ On fait donc l'analyse de sensibilité FAST pour 1000 simulations.
 
 ```{r}
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
-des_xp1000<-fast99(model = NULL, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges) # Pour creer le design expérimental
+des_xp1000<-fast99(model = NULL, 
+                   factors = ParamNames, 
+                   n = 1000, 
+                   q = rep("qunif",16), 
+                   q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp2<-des_xp1000$X # On conserve le tableau avec les variations par paramètres
 length(des_xp2[,1]) # Longueur du tableau
 ```
@@ -1547,13 +1583,29 @@ On peut à présent observer les résultats de l'analyse pour les 4 sorties du m
 ```{r, echo = F}
 # On fait 4 fois le FAST pour séparer les différentes sorties
 si<-1
-FAST1A<- fast99(model = modApplimodif2, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+FAST1A<- fast99(model = modApplimodif2, 
+                factors = ParamNames, 
+                n = 1000, 
+                q = rep("qunif",16), 
+                q.arg = ParamRanges)
 si<-2
-FAST1B<- fast99(model = modApplimodif2, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+FAST1B<- fast99(model = modApplimodif2, 
+                factors = ParamNames, 
+                n = 1000, 
+                q = rep("qunif",16), 
+                q.arg = ParamRanges)
 si<-3
-FAST1C<- fast99(model = modApplimodif2, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+FAST1C<- fast99(model = modApplimodif2, 
+                factors = ParamNames, 
+                n = 1000, 
+                q = rep("qunif",16), 
+                q.arg = ParamRanges)
 si<-4
-FAST1D<- fast99(model = modApplimodif2, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+FAST1D<- fast99(model = modApplimodif2, 
+                factors = ParamNames, 
+                n = 1000, 
+                q = rep("qunif",16), 
+                q.arg = ParamRanges)
 ```
 
 ```{r, echo = F}
@@ -1562,7 +1614,6 @@ plot(FAST1A)
 plot(FAST1B)
 plot(FAST1C)
 plot(FAST1D)
-
 ```
 
 Pour chaque sortie, on obtient les indices de sensibilité pour chaque paramètre, en prenant en compte les effets principaux et les intéractions. 
@@ -1593,7 +1644,6 @@ $$ \text{Nombre maximum d'infectieux en 2 ans} = max(I_{N_t})$$\
 Trans_intra et rec en effets principaux sont les paramètres qui vont avoir un effet important sur le nombre maximal d'infectieux sur 2 ans. Nous retrouvons de nouveau rec, qui vient influencer le résultat par la perte de l'état infectieux. En revanche, trans_intra a une inlfuence possiblement positive, car il s'agit d'une valeur élevée de transmission de l'agent pathogène, ce qui va donc avoir plus d'effet que trans_intra par exemple. 
 
 
-
 **Sortie 4 : Incidence de l'AP sur 1 an**
 
 $$ \text{Incidence de l'AP sur 1 an} = \sum_{t=1}^{365}\frac{transS_{N_t}I_{N_t}}{N_t}$$
@@ -1603,3 +1653,13 @@ Pour ce résultat, ce sont trans_intra, trans_inter, rec et loss en effets princ
 
 **Globalement, l'effet limitant de K n'est plus une composante du modèle qui va avoir une influence importante, contrairement aux deuc facteurs de transmission.** 
 
+<<<<<<< HEAD
+### c. Discussion et comparaison entre les modèles
+
+Globalement, les paramètres trans_intra et trans_inter ont une influence plus importante sur le modèle modifié que trans dans le premier modèle. Nous pouvons le constater car les résultats des analyses sont assez différents entre les 2 modèles, en particulier moins d'intéractions sont présentes. 
+
+Les sorties sont devenues plus sensibles aux paramètres liés à l'agent pathogène (en particulier de transmission) que les paramètres démographiques, qui avaient tout de même une certaine influence dans le premier modèle (en particulier K). 
+
+Préciser les transmissions en intra-classe et inter-classe ont donc permis de rendre compte de paramètres influents bien différents dans le cadre de notre exemple, à savoir un élevage avec des classes d'âge parquées ensemble, ce qui prouve que l'environnement des individus peut avoir un effet important sur la dynamique d'un modèle et ses résultats. 
+=======
+>>>>>>> 8867ed209b4948c34c5e57e433769fd751b85752
