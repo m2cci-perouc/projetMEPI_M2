@@ -1653,6 +1653,7 @@ Pour ce résultat, ce sont trans_intra, trans_inter, rec et loss en effets princ
 
 **Globalement, l'effet limitant de K n'est plus une composante du modèle qui va avoir une influence importante, contrairement aux deuc facteurs de transmission.** 
 
+<<<<<<< HEAD
 ### c. Discussion et comparaison entre les modèles
 
 Globalement, les paramètres trans_intra et trans_inter ont une influence plus importante sur le modèle modifié que trans dans le premier modèle. Nous pouvons le constater car les résultats des analyses sont assez différents entre les 2 modèles, en particulier moins d'intéractions sont présentes. 
@@ -1660,3 +1661,5 @@ Globalement, les paramètres trans_intra et trans_inter ont une influence plus i
 Les sorties sont devenues plus sensibles aux paramètres liés à l'agent pathogène (en particulier de transmission) que les paramètres démographiques, qui avaient tout de même une certaine influence dans le premier modèle (en particulier K). 
 
 Préciser les transmissions en intra-classe et inter-classe ont donc permis de rendre compte de paramètres influents bien différents dans le cadre de notre exemple, à savoir un élevage avec des classes d'âge parquées ensemble, ce qui prouve que l'environnement des individus peut avoir un effet important sur la dynamique d'un modèle et ses résultats. 
+=======
+>>>>>>> 8867ed209b4948c34c5e57e433769fd751b85752
