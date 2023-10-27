@@ -107,6 +107,7 @@ $$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{I_{N_t}}{N})$$
 ```{r}
 knitr::include_graphics("Schema_MEPI.png")
 ```
+
 ### e. Les hypothèses principales du modèle sont :
 
 Paramètres démographiques :
@@ -200,7 +201,7 @@ modAppli <- function(parametre){
     nvinf <- array(0, dim=c(temps));
     
     #Plot
-    plot(x = NA, y = NA, xlim = c(0, 730), ylim = c(0, 35),
+    plot(x = NA, y = NA, xlim = c(0, 400), ylim = c(0, 35),
          type = "n", xlab = "Temps (jours)", ylab = "Nombre d'individus")
 
     # conditions initiales (la population est a sa structure d'equilibre, calculee par ailleurs)
@@ -310,13 +311,20 @@ modAppli <- function(parametre){
 } # fin fonction du modele
 
 # END
-ValNominale = c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365, 
+ValNominale <- c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365, 
                 1/365, 0.3, 1/5, 1/20, 1/100, 0.001)
 
-Par=matrix(ValNominale,nrow=1,ncol=15)
-sol = modAppli(Par)
-
+Par <- matrix(ValNominale,nrow=1,ncol=15)
+sol <- modAppli(Par)
+colnames(sol) <- c("Taux_inf", "Last_incidence", "Nbr_infectes", "Year_incidence")
+sol
 ```
+Suite à l'introdutcion d'un individu infecté par l'agent pathogène avec les paramètres aux valeurs nominales, une vague de propagation se déclanche. Elle est rapidement stabilisée car de nombreux individus sont immunisés. Après 2 ans les proportions d'individus dans chaque classes sont stabilisés, les sorties calculées le dernier jour sont donc les sorties stables.\
+- Le taux d'infectés le dernier jour de la modélisation vaut 0,18.\
+- L'incidence le dernier jour de la modélisation vaut 0,65.\
+- Le nombre maximum d'infectés en une journée est de 37,2 individus.\
+- La somme de l'incidence sur une année vaut 280,9.
+
 
 ## 2. Analyse de sensibilité : méthode OAT
 
@@ -567,7 +575,6 @@ morris_results <- morris(model = modAppli,
                          binf = lower,
                          bsup = upper,
                          scale=T)
-
 ```
 
 Visualiser les résultats
@@ -575,18 +582,29 @@ Visualiser les résultats
 ```{r}
 par(mfrow = c(1, 2))
 plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours", atpen = T)
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 plot(morris_results, y_col = 2, main = "Incidence le dernier jour")
-abline(v = 0.1)
-abline(h = 0.1)
-plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux en 2 ans")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
+plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux")
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 plot(morris_results, y_col = 4, main = "Incidence sur l'année")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 ```
+Les courbes permettent de délimiter les paramètres dans des classes différentes.\
+L'espace le plus à gauche signifie que le paramètre est non linéaire et/ou non monotone.\
+Vers la droite, la zone détermine les paramètres Toujours monotone.\
+Ensuite, les paramètres qui sont monotones.\
+La zone la plus à droite a les paramètres linéaires.
+
+
 
 ## 4. Analyse de sensibilité : Méthode FAST
 Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
@@ -837,13 +855,9 @@ plot(FAST1D)
 ```
 
 
-
-
 ## 6. Modifications du modèle
 
-### a. Informations sur les modifications du modèle
-
-Nous faisons l'hypothèse que la transmission de l'agent pathogène est plus grande au sein d'une même classe qu'entre les classes d'âge. Nous pouvons imaginer cette situation dans un élevage avec des individus de la même classe d'âge qui sont parqués au même endroit
+Nous faisons l'hypothèse que la transmission de l'agent pathogène est plus grande au sein d'une même classe qu'entre les classes d'âge car les individus de même classe d'âge se retrouve plus souvent proches.
 
 Voici les équations modifiées :
 
@@ -891,7 +905,7 @@ $$Nv_{inf_{t+1}}=\color{red}{transIntra}.S_{N_t}(\frac{II_{N_t}}{N}) + \color{re
 
 ### b. Réaliser les mêmes analyses de sensibilité (OAT, Morris, FAST)
 
-#### Modélisation du nouveau modèle
+Modélisation du nouveau modèle
 
 ```{r}
 modApplimodif <- function(parametre){  
@@ -1006,25 +1020,25 @@ modApplimodif <- function(parametre){
     
     # STRUCTURE & PARAMETRES DU MODELE
     
-   
-    K = parametre[i,1];		
-    sr = parametre[i,2];	
-    m1 = parametre[i,3];	
-    m2 = parametre[i,4];	
-    m3 = parametre[i,5];	
-    f2 = parametre[i,6];	
-    f3 = parametre[i,7];	
-    portee = parametre[i,8];	
-    t1 = parametre[i,9];	
-    t2 = parametre[i,10];	
+    # XX
+    K = parametre[i,1];		# xx
+    sr = parametre[i,2];	# xx
+    m1 = parametre[i,3];	# mort naturelle classe 1
+    m2 = parametre[i,4];	# mort naturelle classe 2
+    m3 = parametre[i,5];	# mort naturelle classe 3
+    f2 = parametre[i,6];	# xx
+    f3 = parametre[i,7];	# xx
+    portee = parametre[i,8];	# xx
+    t1 = parametre[i,9];	# xx
+    t2 = parametre[i,10];	# xx
     
-  
-    trans_inter = parametre[i,11]; 
-    trans_intra = parametre[i,12] 
-    lat = parametre[i,13];	
-    rec = parametre[i,14];	
-    loss = parametre[i,15];	
-    madd = parametre[i,16];	
+    # XX
+    trans_inter = parametre[i,11]; # force d'infection inter-classe
+    trans_intra = parametre[i,12] # force d'infection intra-classe
+    lat = parametre[i,13];	# latence
+    rec = parametre[i,14];	# xx
+    loss = parametre[i,15];	# xx
+    madd = parametre[i,16];	# xx
     
     # INITIALISATION
     MAT <- array(0, dim=c(4,4,temps)); # nb indiv par classe d'age en ligne (derniere ligne = pop tot), etat de sante en colonne, pas de temps (dimension 3)
@@ -1035,10 +1049,10 @@ modApplimodif <- function(parametre){
          type = "n", xlab = "Temps (jours)", ylab = "Nombre d'individus")
     
     # conditions initiales (la population est a sa structure d'equilibre, calculee par ailleurs)
-    MAT[1,1,1] <- 27; 
-    MAT[2,1,1] <- 23; 
-    MAT[3,1,1] <- 36; 
-    MAT[3,3,1] <- 1;  
+    MAT[1,1,1] <- 27; # xx
+    MAT[2,1,1] <- 23; # xx
+    MAT[3,1,1] <- 36; # xx
+    MAT[3,3,1] <- 1;  # xx
     # effectifs par etat de sante
     MAT[4,1,1] <- sum(MAT[1:3,1,1]); MAT[4,2,1] <- sum(MAT[1:3,2,1]); MAT[4,3,1] <- sum(MAT[1:3,3,1]); MAT[4,4,1] <- sum(MAT[1:3,4,1]);
     
@@ -1056,6 +1070,7 @@ modApplimodif <- function(parametre){
     # boucle du temps
     for (t in 1:(temps-1)) { 
       # classe d'age 1 (nouveau-ne)
+      # RQ : les naissances sont XX, les nouveaux nes etant dans l'etat XX
       N <- sum(MAT[4,,t]);	# taille de la pop en t
       MAT[1,1,t+1] <- MAT[1,1,t]*(1-m1-t1-trans_inter*MAT[2,3,t]*MAT[3,3,t]- trans_intra*MAT[1,3,t]/N )+ loss*MAT[1,4,t] 
       + max(0, sr*portee*(sum(MAT[2,,t])*f2 + sum(MAT[3,,t])*f3) * (1 - N/K)); 
@@ -1130,10 +1145,6 @@ modApplimodif <- function(parametre){
   lines(sortiepop[10,],lty = 3,col="purple")
   lines(sortiepop[11,],lty = 3,col="red")
   lines(sortiepop[12,],lty = 3,col="blue")
-  #lines(sortiepop[13,],col="green")
-  #lines(sortiepop[14,],col="purple")
-  #lines(sortiepop[15,],col="red")
-  #lines(sortiepop[16,],col="blue")
   
     legend("topright", 
        legend = c("Sains", "Latents", "Infectieux", "Remis", "Nouveaux-nés", "Jeunes", "Adultes"), 
@@ -1150,11 +1161,20 @@ ParamNames = c("K", "sr", "m1", "m2", "m3", "f2", "f3", "portee", "t1", "t2", "t
 
 Par=matrix(ValNominale,nrow=1,ncol=16)
 sol = modApplimodif(Par)
+colnames(sol) <- c("Taux_inf", "Last_incidence", "Nbr_infectes", "Year_incidence")
+sol
 ```
+
+En différenciant les transmissions de l'AP entre classe et au sein de la même classe avec pour valeur 0,2 et 0,5. Le modèle prend plus de temps à se stabilisé et ne l'est toujours pas au bout de 2 ans.\
+- Le taux d'infectés le dernier jour de la modélisation vaut 0,12.\
+- L'incidence le dernier jour de la modélisation vaut 1,00.\
+- Le nombre maximum d'infectés en une journée est de 8,2 individus.\
+- La somme de l'incidence sur une année vaut 875,6.\
+Le taux d'infectés est inférieur au modèle de base et il déscent encore. L'incidence au dernier jours est au contraire supérieure. Le nombre maximum d'infectés est nettement inférieur. Pourtant la somme de l'incidence en une année est plus grand.
 
 #### Méthode OAT
 
-Stocker les variations de paramètres
+Stocker les variations des paramètres
 
 ```{r, echo = F}
 # Valeurs nominales pour chaque paramètre
@@ -1210,7 +1230,7 @@ for (i in 1:length(ValNominale)) {
 }
 ```
 
-Créer les graphiques : Taux d'infecté dernier jour, Incidence dernier jour, Nombre d'infecté infectieux, Somme de l'incidence à l'année
+Réaliser un graphique par sortie : Taux d'infecté dernier jour, Incidence dernier jour, Nombre d'infecté infectieux, Somme de l'incidence à l'année
 
 ```{r, echo = F}
 ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity1)) +
@@ -1224,7 +1244,7 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity1)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("Sensitivity1" = "red"),
                      labels = c("Taux d'infecté dernier jour")) +
-  coord_cartesian(ylim = c(0, 0.4)) +
+  coord_cartesian(ylim = c(0.1, 0.15)) +
   guides(color = FALSE)
 
 ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity2)) +
@@ -1238,7 +1258,7 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity2)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("Sensitivity2" = "blue"),
                      labels = c("Incidence dernier jour")) +
-  coord_cartesian(ylim = c(0, 2)) +
+  coord_cartesian(ylim = c(0.5, 1.5)) +
   guides(color = FALSE)
 
 ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity3)) +
@@ -1252,7 +1272,7 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity3)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("Sensitivity3" = "green"),
                      labels = c("Nombre d'infectieux")) +
-  coord_cartesian(ylim = c(0, 30)) +
+  coord_cartesian(ylim = c(5, 12)) +
   guides(color = FALSE)
 
 ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity4)) +
@@ -1266,13 +1286,12 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity4)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("Sensitivity4" = "purple"),
                      labels = c("Somme de l'incidence à l'année")) +
-  coord_cartesian(ylim = c(600,1200)) +
+  coord_cartesian(ylim = c(650,1200)) +
   guides(color = FALSE)
 ```
 
-La variation des paramètres **K**, **lat**, **rec** et **trans_inter** ont un impact sur les sorties du modèle, ils ont donc une sensibilité.\
-- La valeur seuil d'individus dans le milieu (**K**) augmente l'incidence le dernier jour et sur l'année quadn elle est augmentée. Plus il peut y avoir des individus dans le milieu, plus l'incidence sera grande.\
-- Le taux de latence (**lat**) diminue le taux d'infecté le dernier jour, le nombre d'infectieux et l'incidence sur l'année quand il augmente. La maladie est donc freinée quand le taux de lantence augmente.\
+La variation des paramètres **loss**, **rec**, **trans_inter** et **trans_intra** ont un impact sur les sorties du modèle, ils ont donc une sensibilité.\
+- Le taux de perte de l'immunité (**loss**) augmente légèrement le taux d'infectés par jours ainsi que l'incidence à la journée et à l'année quand sa valeur d'entrée est augmentée. Ce qui veut dire que ce taux a un impact sur moins un individu reste longtemps immunisé, plus 
 - Le taux d'immunisation (**rec**) diminue le taux d'infecté par jour, le nombre d'infecté, l'incidence du dernier jour et à l'année en augmentant. Cela veut dire que plus le taux d'immunisation est élevé plus les individus infectés sont immunisés rapidement, la propagation de la maladie est donc diminuée.\
 - Le taux de transmission entre individus de la même classe (**trans_inter**) augmente l'incidence du dernier jour et à l'année ainsi que le taux d'infectés et le nombre d'infectieux.\
 
@@ -1304,24 +1323,32 @@ morris_results <- morris(model = modApplimodif,
 Afficher les graphiques
 
 ```{r, echo = F}
-par(mfrow = c(2, 2))
+par(mfrow = c(1, 2))
+
 plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours", atpen = T)
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 
 plot(morris_results, y_col = 2, main = "Incidence le dernier jour")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
+
 plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux en 2 ans")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
+
 plot(morris_results, y_col = 4, main = "Incidence sur l'année")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 ```
 
 Sigma mesure les interactions et les relations non linéaires entre les paramètres.\
 Mu mesure la sensibilité du paramètre.\
+
 
 #### Méthode FAST
 
