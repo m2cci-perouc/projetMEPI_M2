@@ -13,6 +13,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Détermination du modèle
 
+Effacer les variables et les graphiques créés lors d'exécutions précédentes
+```{r}
+rm(list=ls())
+graphics.off()
+```
+
+Charger les librairies nécessaires
+```{r}
+library(ggplot2)
+library(tidyr)
+library(sensitivity)
+```
+
 On considère dans ce modèle :
 
 **3 classes d'âge :**
@@ -328,13 +341,6 @@ On fait varier les valeurs à +/- 25% des valeurs nominales. Cela permet de réa
 
 b.  Script de l'analyse OAT
 
-Effacer les variables et les graphiques créés lors d'exécutions précédentes
-
-```{r}
-rm(list=ls())
-graphics.off()
-```
-
 Fonction du modèle à analyser
 
 ```{r}
@@ -409,11 +415,11 @@ modAppli <- function(parametre){
 
     # Sorties ponctuelles a analyser
     
-    # Taux des infectes au dernier jours
+    # Taux d'infectés le dernier jours
     sortie1 <- (MAT[4,2,temps] + MAT[4,3,temps]) / sum(MAT[4,,temps])
-    # Incidence du dernier jour
+    # Incidence le dernier jour
     sortie2 <- nvinf[temps]
-    # Nombre maximum d'infectes infectieux sur les 2 ans
+    # Nombre maximum d'infectieux en 2 ans
     sortie3 <- max(MAT[4,3,1:temps])
     # Incidence sur l'année
     sortie4 <- sum(nvinf[1:365])
@@ -486,11 +492,6 @@ for (i in 1:length(ValNominale)) {
 c.  Réalisez des figures illustrant le comportement du modèle
 
 ```{r}
-library(ggplot2)
-library(tidyr)
-```
-
-```{r}
 # Plot des résultats taux d'infecté au dernier jour et incidence de la maladie le dernier jour
 ggplot(SensitivityResults, aes(x = Val, y = Sensitivity1)) +
   geom_line(aes(color = "Sensitivity1")) +
@@ -533,6 +534,41 @@ Globalement, les paramètres avec les plus grandes sensibilités sont **K** et *
 
 
 3.  Analyse de sensibilité : Méthode Morris
+
+```{r, echo = F}
+# Définir les paramètres de l'analyse Morris
+n <- 100  # Nombre de trajectoires
+p <- length(ValNominale)  # Nombre de paramètres
+lower <- ValNominale*0.75
+upper <- ValNominale*1.25
+
+# Réaliser l'analyse de sensibilité Morris
+morris_results <- morris(model = modAppli,
+                         factors = p,
+                         r = n,  
+                         design = list(type = "oat", levels = 6, grid.jump = 3),
+                         binf = lower,
+                         bsup = upper,
+                         scale=T)
+
+
+# Visualiser les résultats
+par(mfrow = c(2, 2))
+plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours", atpen = T)
+abline(v = 0.1)
+abline(h = 0.1)
+plot(morris_results, y_col = 2, main = "Incidence le dernier jour")
+abline(v = 0.1)
+abline(h = 0.1)
+plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux en 2 ans")
+abline(v = 0.1)
+abline(h = 0.1)
+plot(morris_results, y_col = 4, main = "Incidence sur l'année")
+abline(v = 0.1)
+abline(h = 0.1)
+```
+
+
 
 4.  Analyse de sensibilité : Méthode FAST
 
@@ -585,3 +621,10 @@ $$R_{N_{t+1}}=R_{NN_{t+1}}+R_{J_{t+1}}+R_{A_{t+1}}$$
 **Niveau d'"infectiosité" de l'agent pathogène par jour**
 
 $$Nv_{inf_{t+1}}=transIntra.S_{N_t}(\frac{II_{N_t}}{N}) + transInter.S_{N_t}(\frac{II_{N_t}}{N})$$
+
+b. Réaliser les mêmes analyses
+
+### Méthode OAT
+
+
+
