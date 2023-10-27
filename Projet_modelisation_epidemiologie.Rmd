@@ -888,7 +888,7 @@ Où l'on retrouve tous ces paramètres (K apparaît intrinsèquement au fait qu'
 **Sortie 4 : Incidence de l'AP sur 1 an**
 
 $$ \text{Incidence de l'AP sur 1 an} = \sum_{t=1}^{365}\frac{transS_{N_t}I_{N_t}}{N_t}$$
-Pour ce résultat, ce sont K, trans et loss pour lequel il est le plus sensible. Trans est exprimé explicitement dans la formule ci-dessus et K, comme pour la sortie 2. Loss est imortant ici contrairement à la sortie 2 car on étudie une période de 2 ans et non un maximum. 
+Pour ce résultat, ce sont K, trans et loss pour lequel il est le plus sensible. Trans est exprimé explicitement dans la formule ci-dessus et K, comme pour la sortie 2. Loss est important ici contrairement à la sortie 2 car on étudie une période de 2 ans et non un maximum. 
 
 ## 5. Discussion
 
