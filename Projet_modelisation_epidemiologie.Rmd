@@ -1603,5 +1603,3 @@ Pour ce résultat, ce sont trans_intra, trans_inter, rec et loss en effets princ
 
 **Globalement, l'effet limitant de K n'est plus une composante du modèle qui va avoir une influence importante, contrairement aux deuc facteurs de transmission.** 
 
-
-
