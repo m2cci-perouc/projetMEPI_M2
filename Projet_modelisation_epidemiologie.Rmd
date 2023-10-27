@@ -545,18 +545,19 @@ ggplot(SensitivityResults, aes(x = Val, y = Sensitivity4)) +
 
 ### d. Interpréter les résultats et expliciter des limites possibles
 
-La variation des paramètres **K**, **loss**, **portee**, **rec**, **sr** et **trans** ont un impact sur les sorties du modèle, ils ont donc une sensibilité. En augmentant la valeur de ces paramètres on augmente également le nombre d'infecté le dernier jour, l'incidence le dernier jour, le nombre d'infectieux ainsi que l'incidence d'une année.\
-- La valeur de **K** a donc un impact sur la dynamique de la maladie, plus le milieu peut supporter un grand nombre d'individu, plus l'incidence du dernier jour et l'incidence à l'année sera grand.\
-- Le paramètre **loss** soit le taux de perte de l'immunité d'un individu impact également la dynamique de la maladie. Quand ce taux augmente, les incidences augmentent également.\
-- Le paramètre **portée** impact légèrement le modèle. En augmentant le nombre maximal d'une portée on augmente légèrement les incidences de l'agent pathogène.\
-- Le paramètre **rec** (taux d'immunisation) diminu légèrement le taux d'infecté le dernier jour ainsi que le nombre d'infectieux total.\
-- **sr** exprime le sex-ratio.\
-- Le paramètre **trans** qui transcrit le taux de transmission augmente le nombre d'infectés et les incidences quand il augmente.\
-Globalement, les paramètres avec les plus grandes sensibilités sont **K** et **loss**.
+### d. Interpréter les résultats et expliciter des limites possibles
 
--   L'analyse OAT suppose que les paramètres sont indépendants, elle ne tient pas compte d'une potentielle interaction.
--   Les valeurs testées sont déterminées suite à des hypothèses donc subjectives.
--   Ces valeurs ne contienent pas toutes les valeurs biologiques possibles ce qui peut consuire à une sous-estimation de l'impact des paramètres
+La variation des paramètres **K**, **loss**, **rec** et **trans** ont un impact sur les sorties du modèle, ils sont donc sensibles aux valeurs d'entrée.\
+- La valeur de **K** a donc un impact sur la dynamique de la maladie, plus le milieu peut supporter un grand nombre d'individu, plus l'incidence du dernier jour et l'incidence à l'année sera grand.\
+- Le paramètre **loss** soit le taux de perte de l'immunité d'un individu impact également la dynamique de la maladie. Quand ce taux augmente, le taux d'infectés le dernier jours et les incidences augmentent également.\
+- Le paramètre **rec** (taux d'immunisation) diminue légèrement le taux d'infecté le dernier jour ainsi que le nombre d'infectieux total.\
+- **sr** exprime le sex-ratio.\
+- Le paramètre **trans** (taux de transmission) augmente le taux d'infectés, le nombre d'infectieux et les incidences quand il augmente.\
+Globalement, les paramètres avec les plus grandes sensibilités sont **K**, **loss** et **rec**.
+
+-   L'analyse OAT suppose que les paramètres sont indépendants, elle ne tient pas compte d'une potentielle interaction.\
+-   Les valeurs testées sont déterminées suite à des hypothèses donc subjectives.\
+-   Ces valeurs ne contienent pas toutes les valeurs biologiques possibles ce qui peut consuire à une sous-estimation de l'impact des paramètres.\
 
 ## 3. Analyse de sensibilité : Méthode Morris
 
@@ -598,13 +599,23 @@ abline(a = 0, b = 1)
 abline(a = 0, b = 0.5, lty = 2)
 abline(a = 0, b = 0.1, lty = 3)
 ```
-Les courbes permettent de délimiter les paramètres dans des classes différentes.\
+Sigma mesure les interactions et les relations non linéaires entre les paramètres.\
+Mu* mesure la sensibilité du paramètre.\
+
+Les bornes ont été réalisées en s'appuyant sur l'article de (Menberg, 2016).\
+Menberg, Kathrin & Heo, Y & Choudhary, R. (2016). Sensitivity analysis methods for building energy models: Comparing computational costs and extractable information. Energy and Buildings. 133. 433-445. 10.17863/CAM.6789.\
+Ces bornes permettent de délimiter les paramètres dans des classes différentes.\
 L'espace le plus à gauche signifie que le paramètre est non linéaire et/ou non monotone.\
-Vers la droite, la zone détermine les paramètres Toujours monotone.\
+Vers la droite, la zone détermine les paramètres toujours monotone.\
 Ensuite, les paramètres qui sont monotones.\
-La zone la plus à droite a les paramètres linéaires.
+La zone la plus à droite a les paramètres linéaires. 
 
+-   La sortie 1 qui exprime le taux d'infectés le dernier jours de la modélisation est modifiée de manière monotone par les paramètres 11, 12, 13 et 14. Ce sont donc les paramètres **trans**, **lat**, **rec** et **loss**. Les variations de ces paramètres sont donc constantes. Les paramètres **loss** et **rec** étaient déjà mis en avant par la méthode OAT.\
+-   La sortie 2 qui mesure l'incidence du dernier jours est toujours modifiée de manière monotone par le paramètre 13 soit **rec**. Elle est également influencée de manière monotone par les paramètres 1, 2, 5, 7, 8, 11 et 14 soit **K**, **sr**, **m3**, **f3**, **portee**, **trans** et **loss**. Les paramètres **K**, **trans** et **loss** ont été mis en avant par la méthode OAT.\
+-   La sortie 3 est influencée par les paramètres 2, 7 et 8 toujours de manière monotone (**sr**, **f3**, **portee**). Les paramètres 1, 11 et 12 soit **K**, **trans** et **lat** influencent de manière monotone le nombre maxium d'infectieux. Seuls les paramètres **K** et **trans** ont été identifiés par la méthode OAT.\
+-   La sortie 4 est influencée par les paramètres **sr**, **f3**, **portee** et **rec** toujours de manière monotone ainsi que par les paramètres **K**, **trans** et **loss** de manière monotone. La méthode OAT avait mis en évidence la sensibilité des 3 paramètres monotones.\
 
+Les paramètres influeçants le plus les sorties sont **K**, **sr**, \*\*portee\*, **trans** et **loss**. Nous ne retrouvons pas le paramètre **rec** qui étaient sensible dans l'analyse OAT.
 
 ## 4. Analyse de sensibilité : Méthode FAST
 Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
@@ -1214,12 +1225,12 @@ colnames(sol) <- c("Taux_inf", "Last_incidence", "Nbr_infectes", "Year_incidence
 sol
 ```
 
-En différenciant les transmissions de l'AP entre classe et au sein de la même classe avec pour valeur 0,2 et 0,5. Le modèle prend plus de temps à se stabilisé et ne l'est toujours pas au bout de 2 ans.\
-- Le taux d'infectés le dernier jour de la modélisation vaut 0,12.\
-- L'incidence le dernier jour de la modélisation vaut 1,00.\
+En différenciant les transmissions de l'AP entre classe et au sein de la même classe avec pour valeur 0,2 et 0,5. Nous avons mis un taux de transmission important pour la transmission intra-classe car les individus sont très proches les uns des autres. Le modèle n'est pas stabilisé au bout de 2 ans.\
+- Le taux d'infectés le dernier jour vaut 0,12.\
+- L'incidence au dernier jour de la modélisation vaut 1,00.\
 - Le nombre maximum d'infectés en une journée est de 8,2 individus.\
 - La somme de l'incidence sur une année vaut 875,6.\
-Le taux d'infectés est inférieur au modèle de base et il déscent encore. L'incidence au dernier jours est au contraire supérieure. Le nombre maximum d'infectés est nettement inférieur. Pourtant la somme de l'incidence en une année est plus grand.
+Le taux d'infectés est inférieur au modèle de base et il descend encore. L'incidence au dernier jours est au contraire supérieure. Le nombre maximum d'infectés est nettement inférieur, pourtant la somme de l'incidence sur une année est plus grande.
 
 #### Méthode OAT
 
@@ -1339,12 +1350,12 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity4)) +
   guides(color = FALSE)
 ```
 
-La variation des paramètres **loss**, **rec**, **trans_inter** et **trans_intra** ont un impact sur les sorties du modèle, ils ont donc une sensibilité.\
-- Le taux de perte de l'immunité (**loss**) augmente légèrement le taux d'infectés par jours ainsi que l'incidence à la journée et à l'année quand sa valeur d'entrée est augmentée. Ce qui veut dire que ce taux a un impact sur moins un individu reste longtemps immunisé, plus 
-- Le taux d'immunisation (**rec**) diminue le taux d'infecté par jour, le nombre d'infecté, l'incidence du dernier jour et à l'année en augmentant. Cela veut dire que plus le taux d'immunisation est élevé plus les individus infectés sont immunisés rapidement, la propagation de la maladie est donc diminuée.\
-- Le taux de transmission entre individus de la même classe (**trans_inter**) augmente l'incidence du dernier jour et à l'année ainsi que le taux d'infectés et le nombre d'infectieux.\
+La variation des paramètres **loss**, **rec**, **trans_inter** et **trans_intra** ont un impact sur les sorties du modèle, le modèle est donc sensible à leurs valeurs d'entrée.\
+- Le taux de perte d'immunité (**loss**) augmente légèrement le taux d'infectés par jours ainsi que l'incidence à la journée et à l'année quand sa valeur d'entrée est augmentée. Cela veut dire que ce taux a un impact sur moins d'un individu reste longtemps immunisé, plus - Le taux d'immunisation (**rec**) diminue le taux d'infecté par jour, le nombre d'infecté, l'incidence du dernier jour et à l'année en augmentant. Cela veut dire que plus le taux d'immunisation est élevé plus les individus infectés sont immunisés rapidement, la propagation de la maladie est donc diminuée.\
+- Le taux de transmission entre individus de la même classe (**trans_inter**) augmente l'incidence du dernier jour et à l'année ainsi que le nombre d'infectieux.\
+- Le taux de transmission intra classe (**trans_intra**) influence positivement le taux d'infectés par jours, le nombre total d'infectieux et la somme d'incidence à l'année.\
 
-Dans ce modèle, les paramètres **loss**, **portee** et **sr** n'ont plus une très grande sensibilité. En ravanche, les paramètres **K**, **lat**, **rec** et **trans** sont toujours sensibles. Le taux de transmission qui a été détaillé en 2 paramètres : taux de transmission inter et intra classe, avec un taux **trans_inter** supérieur montre que sa sensibilité est plus importante que **trans_intra**.
+Dans ce modèle, le paramètre **K** n'a plus une très grande sensibilité. En ravanche, les paramètres **loss**, **rec** et **trans** sont toujours sensibles. Le taux de transmission qui a été détaillé en 2 paramètres : taux de transmission inter et intra classe, le taux **trans_inter** montre une sensibilité supérieure à **trans_intra**.
 
 #### Méthode Morris
 
@@ -1396,7 +1407,17 @@ abline(a = 0, b = 0.1, lty = 3)
 ```
 
 Sigma mesure les interactions et les relations non linéaires entre les paramètres.\
-Mu mesure la sensibilité du paramètre.\
+Mu* mesure la sensibilité du paramètre.\
+Les mêmes bornes que pour l'analyse du modèle de base sont ajoutées.\
+L'espace le plus à gauche signifie que le paramètre est non linéaire et/ou non monotone.\
+Ensuite, la zone détermine les paramètres toujours monotone.\
+Ensuite, les paramètres sont monotones.\
+Enfin, les paramètres sont linéaires. \
+
+- Le taux d'infectés le dernier jours est influencé de manière monotone par les paramètres **m1**, **m3**, **t1**, **t2**, **trans_intra**, **lat**, **rec** et **loss**. Ces paramètres sont sensibles de manières monotones, ils ont donc été également identifiés par la méthode OAT.\
+- L'incidence le dernier jour est influencée de manière non linéaire et/ou non monotone par le paramètre **t1**. Les paramètres **m1**, **m3**, **t2**, **trans_inter**, **trans_intra**, **rec**, **loss** influence cette sortie de manière monotone. Les paramètres monotones ont tous été identifiés par la méthode OAT.\
+- Le nombre maximum d'infectieux en une journée est influencé par les paramètres **m3**, **t2**, **trans_intra**, **lat**, **rec**, ils ont une sensibilité monotone.\
+- L'incidence à l'année est influencée par les paramètres **m3**, **t2**, **trans_inter**, **trans_intra**, **lat**, **rec**, **loss** qui ont une sensibilité monotones.
 
 
 #### Méthode FAST
@@ -1538,7 +1559,6 @@ plot(FAST1D)
 
 ```
 
-
 Pour chaque sortie, on obtient les indices de sensibilité pour chaque paramètre, en prenant en compte les effets principaux et les intéractions. 
 
 **Sortie 1 : Taux d'infectés (latents et infectieux) le dernier jour : ** 
@@ -1575,6 +1595,7 @@ $$ \text{Incidence de l'AP sur 1 an} = \sum_{t=1}^{365}\frac{transS_{N_t}I_{N_t}
 
 Pour ce résultat, ce sont trans_intra, trans_inter, rec et loss en effets principaux pour lesquels il est le plus sensible. On retrouve bien ici trans et loss. Le fait de perdre l'immunité vient contrebalancer les forts taux de transmission. 
 
+**Globalement, l'effet limitant de K n'est plus une composante du modèle qui va avoir une influence importante, contrairement aux deuc facteurs de transmission.** 
 
 
-Globalement, l'effet limitant de K n'est plus une composante du modèle qui va avoir une influence importante, contrairement aux deuc facteurs de transmission. 
+
