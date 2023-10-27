@@ -119,9 +119,12 @@ $$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{I_{N_t}}{N})$$
 
 $$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{II_{N_t}}{N})$$
 
-d.  Schéma des transitions entre états
+### d.  Schéma des transitions entre états
+```{r}
+knitr::include_graphics("Schema_MEPI.png")
+```
 
-e.  Les hypothèses principales du modèle sont :
+### e.  Les hypothèses principales du modèle sont :
 
 Paramètres démographiques :
 
@@ -136,21 +139,21 @@ Paramètres liés à l'AP :
 -   Une période de latence précède l'état infectieux de l'individu infecté
 -   Après la période d'immunité, l'individu redevient sensible à l'AP
 
-f.  Initialement il y a :
+### f.  Initialement il y a :
 
 -   27 Nouveaux-nés sains
 -   23 Jeunes sains
 -   36 Adultes sains
 -   1 Adulte infectieux
 
-g.  Les sorties possibles du modèle sont :
+### g.  Les sorties possibles du modèle sont :
 
 -   Taux d'infectés (latents et infectieux) le dernier jour
 -   Incidence de l'AP au dernier jour
 -   Nombre maximum d'infectés infectieux sur la période de temps étudiée
 -   Incidence de l'AP pour 1 an
 
-h.  
+### h. Paramètres 
 
 Paramètres liés à la population étudiée :
 
@@ -331,11 +334,11 @@ sol = modAppli(Par)
 
 ## 2. Analyse de sensibilité : méthode OAT
 
-a.  Justifier les valeurs testées
+### a.  Justifier les valeurs testées
 
 On fait varier les valeurs à +/- 25% des valeurs nominales. Cela permet de réaliser une analyse de sensibilité en gardant des valeurs viables.
 
-b.  Script de l'analyse OAT
+### b.  Script de l'analyse OAT
 
 Fonction du modèle à analyser
 
@@ -485,7 +488,7 @@ for (i in 1:length(ValNominale)) {
 }
 ```
 
-c.  Réalisez des figures illustrant le comportement du modèle
+### c.  Réalisez des figures illustrant le comportement du modèle
 
 ```{r}
 # Plot des résultats taux d'infecté au dernier jour et incidence de la maladie le dernier jour
@@ -512,21 +515,21 @@ ggplot(SensitivityResults, aes(x = Val, y = Sensitivity3)) +
 
 ```
 
-d. Interpréter les résultats et expliciter des limites possibles
+### d. Interpréter les résultats et expliciter des limites possibles
 
 La variation des paramètres **K**, **loss**, **portee**, **rec**, **sr** et **trans** ont un impact sur les sorties du modèle, ils ont donc une sensibilité. En augmentant la valeur de ces paramètres on augmente également le nombre d'infecté le dernier jour, l'incidence le dernier jour, le nombre d'infectieux ainsi que l'incidence d'une année. \
-- La valeur de **K** a donc un impact sur la dynamique de la maladie, plus le milieu peut supporter un grand nombre d'individu, plus l'incidence du dernier jour et l'incidence à l'année sera grand. \
-- Le paramètre **loss** soit le taux de perte de l'immunité d'un individu impact également la dynamique de la maladie. Quand ce taux augmente, les incidences augmentent également. \
-- Le paramètre **portée** impact légèrement le modèle. En augmentant le nombre maximal d'une portée on augmente légèrement les incidences de l'agent pathogène. \
-- Le paramètre **rec** (taux d'immunisation) diminu légèrement le taux d'infecté le dernier jour ainsi que le nombre d'infectieux total. \
-- **sr** exprime le sex-ratio. \
-- Le paramètre **trans** qui transcrit le taux de transmission augmente le nombre d'infectés et les incidences quand il augmente. \
+  - La valeur de **K** a donc un impact sur la dynamique de la maladie, plus le milieu peut supporter un grand nombre d'individu, plus l'incidence du dernier jour et l'incidence à l'année sera grand. \
+  - Le paramètre **loss** soit le taux de perte de l'immunité d'un individu impact également la dynamique de la maladie. Quand ce taux augmente, les incidences augmentent également. \
+  - Le paramètre **portée** impact légèrement le modèle. En augmentant le nombre maximal d'une portée on augmente légèrement les incidences de l'agent pathogène. \
+  - Le paramètre **rec** (taux d'immunisation) diminu légèrement le taux d'infecté le dernier jour ainsi que le nombre d'infectieux total. \
+  - **sr** exprime le sex-ratio. \
+  - Le paramètre **trans** qui transcrit le taux de transmission augmente le nombre d'infectés et les incidences quand il augmente. \
 Globalement, les paramètres avec les plus grandes sensibilités sont **K** et **loss**.
 
 
-- L'analyse OAT suppose que les paramètres sont indépendants, elle ne tient pas compte d'une potentielle interaction.
-- Les valeurs testées sont déterminées suite à des hypothèses donc subjectives.
-- Ces valeurs ne contienent pas toutes les valeurs biologiques possibles ce qui peut consuire à une sous-estimation de l'impact des paramètres
+  - L'analyse OAT suppose que les paramètres sont indépendants, elle ne tient pas compte d'une potentielle interaction.
+  - Les valeurs testées sont déterminées suite à des hypothèses donc subjectives.
+  - Ces valeurs ne contienent pas toutes les valeurs biologiques possibles ce qui peut consuire à une sous-estimation de l'impact des paramètres
 
 
 ## 3.  Analyse de sensibilité : Méthode Morris
@@ -569,7 +572,7 @@ abline(h = 0.1)
 ## 4.  Analyse de sensibilité : Méthode FAST
 
 Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
-a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
+### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
 
 ```{r}
 library(sensitivity)
@@ -578,16 +581,15 @@ library(sensitivity)
 Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol. 
 
 Le principe est de choisir pour cette étude : 
-- Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.*
-- Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.*
-- Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
+  - Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.*
+  - Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.*
+  - Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
 
 Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*. 
 
 En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque variable d'entrée étudiée et des graphiques nous permettent de nous représenter les effets des différents paramètres.
 
-b. 
-**Pour 100 simulations**
+### b. **Pour 100 simulations**
 
 On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'. 
 ```{r}
@@ -597,16 +599,60 @@ des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",1
 des_xp<-des_xp100$X 
 length(des_xp[,1])
 FAST100<-modAppli(des_xp) # Simulation
-
 ```
+
 On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
 
 On peut à présent observer les résultats de l'analyse. 
 
-```{r}
+```{r, echo = FALSE}
+fast2<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+plot(fast2)
 
+
+---------------------------------------------------------
+fast2_df <- as.data.frame(fast2$X)
+
+# Créer une liste pour stocker les graphiques
+plot_list <- list()
+
+# Boucle pour créer les graphiques pour chaque paramètre
+for (param in ParamNames) {
+  plot <- ggplot(fast2_df, aes(x = param, y = "X2", fill = "Interaction")) +
+    geom_bar(stat = "identity", position = "dodge", color = "black") +
+    labs(title = paste("Effets principaux et interactions de", param),
+         x = param,
+         y = "Estimation") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  plot_list[[param]] <- plot
+}
+
+for (param in ParamNames) {
+  plot <- ggplot(fast2_df, aes(x = param, y = "X2", fill = "Interaction")) +
+    geom_bar(stat = "identity", position = "dodge", color = "black") +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "red", size = 1) +  # Ajout d'une ligne pour les effets principaux
+    labs(title = paste("Effets principaux et interactions de", param),
+         x = param,
+         y = "Estimation") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  plot_list[[param]] <- plot
+}
+
+
+# Afficher les graphiques
+library(gridExtra)
+length(plot_list)
+plot_list$K
+grid.arrange(grobs = plot_list)  # Ajuste ncol en fonction de la mise en page souhaitée
 ```
 
+Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle. 
+
+Nous pouvons déjà présenter les effets K, sr, f3 et 
 
 ## 6.  Modifications du modèle
 
