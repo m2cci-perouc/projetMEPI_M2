@@ -104,6 +104,9 @@ $$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{I_{N_t}}{N})$$
 
 ### d. Schéma des transitions entre états
 
+```{r}
+knitr::include_graphics("Schema_MEPI.png")
+```
 ### e. Les hypothèses principales du modèle sont :
 
 Paramètres démographiques :
@@ -586,18 +589,21 @@ abline(h = 0.1)
 ```
 
 ## 4. Analyse de sensibilité : Méthode FAST
-
-Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html> \### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'.
+Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
+### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
 
 ```{r}
 library(sensitivity)
 ```
 
-Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol.
+Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol. 
 
-Le principe est de choisir pour cette étude : - Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.* - Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.* - Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
+Le principe est de choisir pour cette étude : 
+  - Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.*
+  - Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.*
+  - Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
 
-Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*.
+Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*. 
 
 En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque variable d'entrée étudiée et des graphiques nous permettent de nous représenter les effets des différents paramètres.
 
@@ -605,29 +611,98 @@ En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque
 
 ### b. **Pour 100 simulations**
 
-On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'.
-
+On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'. 
 ```{r}
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
 
 des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
-des_xp<-des_xp100$X # On conserve le tableau avec les variations par paramètres
-length(des_xp[,1]) # Longueur du tableau
+des_xp1<-des_xp100$X # On conserve le tableau avec les variations par paramètres
+length(des_xp1[,1]) # Longueur du tableau
 
 ```
 
-On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios.
+On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
+
+### c. Variation des paramètres
 
 Maintenant qu'on a le design exprimental, on peut regarder comment les variations des paramètres remplissent l'espace.
+Ici, on représente les variations des paramètres 2 à 2 ici on ne représente que les paramètres K et sr. 
+
+```{r, echo = F}
+plot(des_xp1[1:200,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres")
+plot(des_xp1[1:200,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres")
+```
+L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux. 
+
+*A priori*, on peut voir que l'espace est assez bien rempli.
+
+### d. Pour 1000 trajectoires
+
+On effectue les mêmes démarches pour 1000 scénarios. 
 
 ```{r}
-plot(des_xp[,1:2], type='p', col = c("red", "blue"), main = "Variation des paramètres K et sr dans l'espace des paramètres") # On regarde comment les paramètres remplissent l'espace
-legend("topright", legend = c("K","sr"), text.col = c("red", "blue"))
+des_xp1000<-fast99(model = NULL, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
+des_xp2<-des_xp1000$X # On conserve le tableau avec les variations par paramètres
+length(des_xp2[,1]) # Longueur du tableau
+
 ```
 
-L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux.
+On obtient donc un tableau de 15000 lignes.
 
-On peut à présent observer les résultats de l'analyse.
+Et pour le design expérimental :
+
+```{r, echo = F}
+plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
+plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
+```
+On obtient donc un recouvrement plus important de l'espace que pour seulement 100 simulations.
+
+### e. Comparaison des deux designs expérimentaux
+
+*A priori*, on a l'impression que pour 100 scénarios, on a un recouvrement plus homogène de l'espace
+qui suggèrerait potentiellement une analyse FAST plus précise et plus fiable. En revanche, si l'on compare les deux recouvrements, on se rend compte que pour 100 simulations, il y a plus de trous à certains endroits, ce qui rend donc ce paramétrage moins efficace que pour 1000 scénarios.
+
+```{r, echo = F}
+plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres", col = "orange") 
+points(des_xp1[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres", col = "purple") 
+
+```
+
+### f. Lancement de l'analyse avec le modèle
+
+Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST. 
+
+```{r}
+FAST1<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+```
+
+```{r}
+FAST2<-fast99(model = modAppli, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges)
+```
+
+
+### g. Distribution des sorties obtenues
+
+#### Pour 100 simulations
+```{r, echo = F}
+par(mfrow=c(2,2))
+hist(FAST1$y[1:1500], main = "Analyse de sensibilité FAST : sortie 1", xlab = "Valeurs de la sortie 1")
+hist(FAST1$y[1501:3000], main = "Analyse de sensibilité FAST : sortie 2", xlab = "Valeurs de la sortie 2")
+hist(FAST1$y[3001:4500], main = "Analyse de sensibilité FAST : sortie 3", xlab = "Valeurs de la sortie 3")
+hist(FAST1$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab = "Valeurs de la sortie 4")
+```
+
+#### Pour 1000 simulations
+
+```{r, echo = F}
+par(mfrow=c(2,2))
+hist(FAST2$y[1:1500], main = "Analyse de sensibilité FAST : sortie 1", xlab = "Valeurs de la sortie 1")
+hist(FAST2$y[1501:3000], main = "Analyse de sensibilité FAST : sortie 2", xlab = "Valeurs de la sortie 2")
+hist(FAST2$y[3001:4500], main = "Analyse de sensibilité FAST : sortie 3", xlab = "Valeurs de la sortie 3")
+hist(FAST2$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab = "Valeurs de la sortie 4")
+```
+
+On peut à présent observer les résultats de l'analyse. 
 
 ```{r, echo = FALSE}
 fast2<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
@@ -681,9 +756,10 @@ FAST100<-modAppli(des_xp) # Simulation
 hist(FAST100)
 ```
 
-Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle.
+Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle. 
 
-Nous pouvons déjà présenter les effets K, sr, f3 et
+Nous pouvons déjà présenter les effets K, sr, f3 et 
+
 
 ## 6. Modifications du modèle
 
@@ -1167,3 +1243,4 @@ abline(h = 0.1)
 
 Sigma mesure les interactions et les relations non linéaires entre les paramètres.\
 Mu mesure la sensibilité du paramètre.\
+
