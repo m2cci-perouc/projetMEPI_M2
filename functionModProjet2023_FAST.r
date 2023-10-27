@@ -165,32 +165,32 @@ PAR
 
 
 # Tests -------------------------------------------------------------------
-
-# Simulation 1
-sim1<-modAppli(parametre = PAR)
-sim1
-# length(sim1) # 11680
-sim1<-t(sim1)
-colnames(sim1)<- 1:16 
-
-# reshape dataframe to have only one value column
-library(reshape2)
-sim1<-melt(sim1) # Mettre toutes les données dans 1 seule colonne + colonne identifiant (1:16)
-# create a x vector from 1 to the number of value for each variable (here 730)
-# sim1$x<-rep(1:length(sim1$value[sim1$variable==1]))
-npoints<- 730*16
-npoints
-sim1$x<-seq_len(npoints)
+# 
+# # Simulation 1
+# sim1<-modAppli(parametre = PAR)
+# sim1
+# # length(sim1) # 11680
+# sim1<-t(sim1)
+# colnames(sim1)<- 1:16 
+# 
+# # reshape dataframe to have only one value column
+# library(reshape2)
+# sim1<-melt(sim1) # Mettre toutes les données dans 1 seule colonne + colonne identifiant (1:16)
+# # create a x vector from 1 to the number of value for each variable (here 730)
+# # sim1$x<-rep(1:length(sim1$value[sim1$variable==1]))
+# npoints<- 730*16
+# npoints
+# sim1$x<-seq_len(npoints)
 
 # Representations graphiques ----------------------------------------------
 #https://stackoverflow.com/questions/43850567/how-can-one-plot-the-rows-of-a-two-dimensional-array-in-one-plot-using-ggplot2
 
 # Nom des axes et des differents etats
 library(tidyverse)
-
-sim1<-sim1 %>% rename( Etat = Var2,
-                 "Temps (j)" = Var1,
-                 Effectif = value)
+# 
+# sim1<-sim1 %>% rename( Etat = Var2,
+#                  "Temps (j)" = Var1,
+#                  Effectif = value)
 # sim1$Etat<-as.factor(sim1$Etat)
 # sim1 %>% mutate(Etat = replace(Etat, Etat == 1, c("Snn")))
 # sim1$Etat<-ifelse(sim1$Etat==1,"Snn",sim1$Etat)
@@ -241,10 +241,9 @@ library(sensitivity)
 # Utile dans le cas d'un mmodele assez lourd et gourmand en analyse
 
 # Définir les paramètres et les plages de valeurs
-parameters
-param_ranges
 parameters <- c("K","sr", "m1", "m2","m3","f2","f3","portee","t1","t2",
                 "trans","lat","rec","loss","madd")
+
 fact<-0.25  # On cree des bornes a +/- 25% de la valeur entree
 
 
@@ -253,7 +252,10 @@ fact<-0.25  # On cree des bornes a +/- 25% de la valeur entree
 
 bornes<-apply( X = cbind(binf = ValNominale*0.75, bsup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])})
 head(bornes) # 
-fast<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = bornes)
+fast1<-fast99(model = NULL, factors = parameters, n = 100, q = rep("qunif",15), q.arg = bornes)
+fast2<-fast99(model = modAppli, factors = parameters, n = 100, q = rep("qunif",15), q.arg = bornes)
+plot(fast2)
+
 Res<-fast$X
 length(Res[,1]) # 1500 lignes, car 15 param * 100 scenarios
 FAST<-modAppli(Res)
@@ -264,4 +266,17 @@ hist(FAST[,1]) # Pour K
 hist(FAST[,2])
 # Faire pour toutes les sorties
 
+# Representations graphiques
+# Charger le package
+library(ggplot2)
 
+# Créer un data frame avec les résultats de tes simulations
+results_df <- as.data.frame(fast)
+
+# Utiliser ggplot pour créer un histogramme
+ggplot(results_df, aes(x = ton_parametre_d_interet)) +
+  geom_histogram(binwidth = 0.1, fill = "blue", color = "black", alpha = 0.7) +
+  labs(title = "Distribution des résultats de l'analyse de sensibilité",
+       x = "Paramètre d'intérêt",
+       y = "Fréquence") +
+  theme_minimal()

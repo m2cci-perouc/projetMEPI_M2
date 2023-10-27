@@ -567,41 +567,111 @@ abline(h = 0.1)
 
 ## 4. Analyse de sensibilité : Méthode FAST
 
-Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html> a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'.
+Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
+### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
 
 ```{r}
 library(sensitivity)
 ```
 
-Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol.
+Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol. 
 
-Le principe est de choisir pour cette étude : - Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.* - Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.* - Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
+Le principe est de choisir pour cette étude : 
+  - Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.*
+  - Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.*
+  - Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
 
-Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*.
+Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*. 
 
 En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque variable d'entrée étudiée et des graphiques nous permettent de nous représenter les effets des différents paramètres.
 
-b.  **Pour 100 simulations**
+##### Design expérimental
 
-On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'.
+### b. **Pour 100 simulations**
 
+On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'. 
 ```{r}
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
 
 des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
-des_xp<-des_xp100$X 
-length(des_xp[,1])
-FAST100<-modAppli(des_xp) # Simulation
+des_xp<-des_xp100$X # On conserve le tableau avec les variations par paramètres
+length(des_xp[,1]) # Longueur du tableau
 
 ```
 
-On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios.
+On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
 
-On peut à présent observer les résultats de l'analyse.
+Maintenant qu'on a le design exprimental, on peut regarder comment les variations des paramètres remplissent l'espace.
 
 ```{r}
-
+plot(des_xp[,1:2], type='p', col = c("red", "blue"), main = "Variation des paramètres K et sr dans l'espace des paramètres") # On regarde comment les paramètres remplissent l'espace
+legend("topright", legend = c("K","sr"), text.col = c("red", "blue"))
 ```
+L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux. 
+
+
+
+
+
+
+
+On peut à présent observer les résultats de l'analyse. 
+
+```{r, echo = FALSE}
+fast2<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+plot(fast2)
+
+
+fast2_df <- as.data.frame(fast2$X)
+# hist(fast2_df$f3)
+
+# Créer une liste pour stocker les graphiques
+plot_list <- list()
+
+# Boucle pour créer les graphiques pour chaque paramètre
+for (param in ParamNames) {
+  plot <- ggplot(fast2_df, aes(x = param, y = "X2", fill = "Interaction")) +
+    geom_bar(stat = "identity", position = "dodge", color = "black") +
+    labs(title = paste("Effets principaux et interactions de", param),
+         x = param,
+         y = "Estimation") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  plot_list[[param]] <- plot
+}
+
+for (param in ParamNames) {
+  plot <- ggplot(fast2_df, aes(x = param, y = "X2", fill = "Interaction")) +
+    geom_bar(stat = "identity", position = "dodge", color = "black") +
+    geom_hline(yintercept = 0, linetype = "dashed", color = "red", size = 1) +  # Ajout d'une ligne pour les effets principaux
+    labs(title = paste("Effets principaux et interactions de", param),
+         x = param,
+         y = "Estimation") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  
+  plot_list[[param]] <- plot
+}
+
+
+# Afficher les graphiques
+library(gridExtra)
+length(plot_list)
+plot_list$K
+grid.arrange(grobs = plot_list)  # Ajuste ncol en fonction de la mise en page souhaitée
+
+
+
+
+
+FAST100<-modAppli(des_xp) # Simulation
+hist(FAST100)
+```
+
+Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle. 
+
+Nous pouvons déjà présenter les effets K, sr, f3 et 
 
 6.  Modifications du modèle
 
@@ -921,3 +991,4 @@ La variation des paramètres **K**, **lat**, **rec** et **trans_inter** ont un i
 - Le taux de transmission entre individus de la même classe (**trans_inter**) augmente l'incidence du dernier jour et à l'année ainsi que le taux d'infectés et le nombre d'infectieux.\
 
 Dans ce modèle, les paramètres **loss**, **portee** et **sr** n'ont plus une très grande sensibilité. En ravanche, les paramètres **K**, **lat**, **rec** et **trans** sont toujours sensibles. Le taux de transmission qui a été détaillé en 2 paramètres : taux de transmission inter et intra classe, avec un taux **trans_inter** supérieur montre que sa sensibilité est plus importante que **trans_intra**.
+
