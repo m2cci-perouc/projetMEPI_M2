@@ -589,6 +589,8 @@ Un certain nombre de simulations est effectué pour chaque paramètre dans le bu
 
 En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque variable d'entrée étudiée et des graphiques nous permettent de nous représenter les effets des différents paramètres.
 
+##### Design expérimental
+
 ### b. **Pour 100 simulations**
 
 On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'. 
@@ -596,12 +598,26 @@ On définit le design expérimental en premier lieu, puis on l'appelle avec notr
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
 
 des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
-des_xp<-des_xp100$X 
-length(des_xp[,1])
-FAST100<-modAppli(des_xp) # Simulation
+des_xp<-des_xp100$X # On conserve le tableau avec les variations par paramètres
+length(des_xp[,1]) # Longueur du tableau
+
 ```
 
 On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
+
+Maintenant qu'on a le design exprimental, on peut regarder comment les variations des paramètres remplissent l'espace.
+
+```{r}
+plot(des_xp[,1:2], type='p', col = c("red", "blue"), main = "Variation des paramètres K et sr dans l'espace des paramètres") # On regarde comment les paramètres remplissent l'espace
+legend("topright", legend = c("K","sr"), text.col = c("red", "blue"))
+```
+L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux. 
+
+
+
+
+
+
 
 On peut à présent observer les résultats de l'analyse. 
 
@@ -610,8 +626,8 @@ fast2<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",1
 plot(fast2)
 
 
----------------------------------------------------------
 fast2_df <- as.data.frame(fast2$X)
+# hist(fast2_df$f3)
 
 # Créer une liste pour stocker les graphiques
 plot_list <- list()
@@ -648,6 +664,13 @@ library(gridExtra)
 length(plot_list)
 plot_list$K
 grid.arrange(grobs = plot_list)  # Ajuste ncol en fonction de la mise en page souhaitée
+
+
+
+
+
+FAST100<-modAppli(des_xp) # Simulation
+hist(FAST100)
 ```
 
 Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle. 
