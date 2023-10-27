@@ -611,8 +611,9 @@ Maintenant qu'on a le design exprimental, on peut regarder comment les variation
 Ici, on représente les variations des paramètres 2 à 2 ici on ne représente que les paramètres K et sr. 
 
 ```{r, echo = F}
-plot(des_xp1[1:200,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres")
-plot(des_xp1[1:200,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres")
+par(mfrow=c(1,2))
+plot(des_xp1[1:200,1:2], type='p', main = "Variation des paramètres K et sr")
+plot(des_xp1[1:200,1:2], type='b', main = "Variation des paramètres K et sr")
 ```
 L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux. 
 
@@ -634,8 +635,9 @@ On obtient donc un tableau de 15000 lignes.
 Et pour le design expérimental :
 
 ```{r, echo = F}
-plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
-plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
+par(mfrow=c(1,2))
+plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr") 
+plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr") 
 ```
 On obtient donc un recouvrement plus important de l'espace que pour seulement 100 simulations.
 
@@ -645,8 +647,9 @@ On obtient donc un recouvrement plus important de l'espace que pour seulement 10
 qui suggèrerait potentiellement une analyse FAST plus précise et plus fiable. En revanche, si l'on compare les deux recouvrements, on se rend compte que pour 100 simulations, il y a plus de trous à certains endroits, ce qui rend donc ce paramétrage moins efficace que pour 1000 scénarios.
 
 ```{r, echo = F}
-plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres", col = "orange") 
-points(des_xp1[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres", col = "purple") 
+par(mfrow=c(1,1))
+plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr ", col = "orange") 
+points(des_xp1[1:2000,1:2], type='p', main = "Variation des paramètres K et sr", col = "purple") 
 
 ```
 
