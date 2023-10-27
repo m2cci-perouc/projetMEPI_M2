@@ -1,4 +1,3 @@
-
 ---
 title: "Projet_modélisation_épidémiologie"
 author: "Chloe Perou - Raphaelle Lebailly"
@@ -910,7 +909,13 @@ Pour ce résultat, ce sont K, trans et loss en effets principaux pour lequel il 
 
 ## 5. Discussion
 
+Entre les méthodes d'analyse de sensibilité de OAT et Morris, nous ne décelons peu de différences entre les résultats pour chaque sortie. Néanmoins, la méthode OAT détécte seulement les paramètres qui ont une sensibilité monotone. Dès que le paramètre a une sensibilité en interaction avec une autre elle ne sera pas détectée. Entre ces deux méthodes, les résultats sont donc cohérants. La méthode OAT est très rapide mais ne permet pas une analyse très poussée. De plus, la méthode Morris ne prend pas beaucoup plus de temps à tourner.
 
+Concernant FAST, comme Morris, l'espace des paramètres est plus exploré que pour OAT. En revanche, ce recouvrement des possibilités n'est pas représenté par des grilles comme Morris, ce qui le rend plus fin, car explore plus de possibilités de valeurs des paramètres (continus) et les intéractions entre paramètres. Nous pouvons le constater avec les différences marquées obtenues entre 100 et 1000 simulations. Cependant, les temps de simulation sont très coûteux en temps, et peut-être que 1000 simulations sont bien largement assez pour trouver des indices de sensibilité fiables. Il serait donc intéressant de trouver un optimum de nombre de simulations qui permettraient de trouver un compromis entre fiabilité des informations de l'analyse et temps de calcul. 
+
+Pour les résultats, FAST réussit à retrouver les paramètres de type 'monotone' de Morris, mais pas les autres. Cependant, il nous permet de connaître les intéractions, ce qui n'est pas possible avec Morris. 
+
+En conclusion, nous pouvons dire que Morris et FAST sont des méthodes d'analyse de sensibilité complémentaires efficaces pour connaître l'influence des paramètres d'entrée sur les sorties. OAT peut être intéressante dans le cas d'un modèle peu complexe (peu de paramètres et d'intéractions possibles) car elle est assez simple et rapide à utiliser et à interpréter. Dans le cas de la précision portée par FAST et Morris, il serait intéressant de faire des tests qui indiqueraient la significativité des résultats dans le cas du nombre de simulations et d'interprétation des résultats. 
 
 ## 6. Modifications du modèle
 
@@ -1408,7 +1413,7 @@ abline(a = 0, b = 0.1, lty = 3)
 ```
 
 $\sigma$ mesure les interactions et les relations non linéaires entre les paramètres.\
-$\mu$\* mesure la sensibilité du paramètre.\
+$\mu$* mesure la sensibilité du paramètre.\
 Les mêmes bornes que pour l'analyse du modèle de base sont ajoutées.\
 L'espace le plus à gauche signifie que le paramètre est non linéaire et/ou non monotone.\
 Ensuite, la zone détermine les paramètres toujours monotone.\
@@ -1597,3 +1602,4 @@ $$ \text{Incidence de l'AP sur 1 an} = \sum_{t=1}^{365}\frac{transS_{N_t}I_{N_t}
 Pour ce résultat, ce sont trans_intra, trans_inter, rec et loss en effets principaux pour lesquels il est le plus sensible. On retrouve bien ici trans et loss. Le fait de perdre l'immunité vient contrebalancer les forts taux de transmission. 
 
 **Globalement, l'effet limitant de K n'est plus une composante du modèle qui va avoir une influence importante, contrairement aux deuc facteurs de transmission.** 
+
