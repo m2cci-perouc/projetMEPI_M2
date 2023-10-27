@@ -1,3 +1,4 @@
+
 ---
 title: "Projet_modélisation_épidémiologie"
 author: "Chloe Perou - Raphaelle Lebailly"
@@ -1406,8 +1407,8 @@ abline(a = 0, b = 0.5, lty = 2)
 abline(a = 0, b = 0.1, lty = 3)
 ```
 
-Sigma mesure les interactions et les relations non linéaires entre les paramètres.\
-Mu* mesure la sensibilité du paramètre.\
+$\sigma$ mesure les interactions et les relations non linéaires entre les paramètres.\
+$\mu$\* mesure la sensibilité du paramètre.\
 Les mêmes bornes que pour l'analyse du modèle de base sont ajoutées.\
 L'espace le plus à gauche signifie que le paramètre est non linéaire et/ou non monotone.\
 Ensuite, la zone détermine les paramètres toujours monotone.\
@@ -1596,6 +1597,3 @@ $$ \text{Incidence de l'AP sur 1 an} = \sum_{t=1}^{365}\frac{transS_{N_t}I_{N_t}
 Pour ce résultat, ce sont trans_intra, trans_inter, rec et loss en effets principaux pour lesquels il est le plus sensible. On retrouve bien ici trans et loss. Le fait de perdre l'immunité vient contrebalancer les forts taux de transmission. 
 
 **Globalement, l'effet limitant de K n'est plus une composante du modèle qui va avoir une influence importante, contrairement aux deuc facteurs de transmission.** 
-
-
-
