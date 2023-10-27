@@ -107,6 +107,7 @@ $$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{I_{N_t}}{N})$$
 ```{r}
 knitr::include_graphics("Schema_MEPI.png")
 ```
+
 ### e. Les hypothèses principales du modèle sont :
 
 Paramètres démographiques :
@@ -200,7 +201,7 @@ modAppli <- function(parametre){
     nvinf <- array(0, dim=c(temps));
     
     #Plot
-    plot(x = NA, y = NA, xlim = c(0, 730), ylim = c(0, 35),
+    plot(x = NA, y = NA, xlim = c(0, 400), ylim = c(0, 35),
          type = "n", xlab = "Temps (jours)", ylab = "Nombre d'individus")
 
     # conditions initiales (la population est a sa structure d'equilibre, calculee par ailleurs)
@@ -310,12 +311,20 @@ modAppli <- function(parametre){
 } # fin fonction du modele
 
 # END
-ValNominale = c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365, 
+ValNominale <- c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365, 
                 1/365, 0.3, 1/5, 1/20, 1/100, 0.001)
 
-Par=matrix(ValNominale,nrow=1,ncol=15)
-sol = modAppli(Par)
+Par <- matrix(ValNominale,nrow=1,ncol=15)
+sol <- modAppli(Par)
+colnames(sol) <- c("Taux_inf", "Last_incidence", "Nbr_infectes", "Year_incidence")
+sol
 ```
+Suite à l'introdutcion d'un individu infecté par l'agent pathogène avec les paramètres aux valeurs nominales, une vague de propagation se déclanche. Elle est rapidement stabilisée car de nombreux individus sont immunisés. Après 2 ans les proportions d'individus dans chaque classes sont stabilisés, les sorties calculées le dernier jour sont donc les sorties stables.\
+- Le taux d'infectés le dernier jour de la modélisation vaut 0,18.\
+- L'incidence le dernier jour de la modélisation vaut 0,65.\
+- Le nombre maximum d'infectés en une journée est de 37,2 individus.\
+- La somme de l'incidence sur une année vaut 280,9.
+
 
 ## 2. Analyse de sensibilité : méthode OAT
 
@@ -573,69 +582,87 @@ Visualiser les résultats
 ```{r}
 par(mfrow = c(1, 2))
 plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours", atpen = T)
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 plot(morris_results, y_col = 2, main = "Incidence le dernier jour")
-abline(v = 0.1)
-abline(h = 0.1)
-plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux en 2 ans")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
+plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux")
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 plot(morris_results, y_col = 4, main = "Incidence sur l'année")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 ```
+Les courbes permettent de délimiter les paramètres dans des classes différentes.\
+L'espace le plus à gauche signifie que le paramètre est non linéaire et/ou non monotone.\
+Vers la droite, la zone détermine les paramètres Toujours monotone.\
+Ensuite, les paramètres qui sont monotones.\
+La zone la plus à droite a les paramètres linéaires.
+
+
 
 ## 4. Analyse de sensibilité : Méthode FAST
-Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
-### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
+
+Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>\
+
+### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'.
 
 ```{r}
 library(sensitivity)
 ```
 
-Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol. 
+Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol.
 
-Le principe est de choisir pour cette étude : 
-  - Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.*
-  - Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.*
-  - Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
+Le principe est de choisir pour cette étude :\
+- Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.*\
+- Leurs plages de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.*\
+- Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
 
-Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*. 
+Un certain nombre de simulations est effectué pour chaque variation de paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance des paramètres. Au contraire, trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*.
 
 En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque variable d'entrée étudiée et des graphiques nous permettent de nous représenter les effets des différents paramètres.
 
 ##### Design expérimental
 
-### b. **Pour 100 simulations**
+### b. **Analyse de sensibilité avec 100 simulations**
 
-On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'. 
+On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'.
+
 ```{r}
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
 
-des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
+des_xp100<-fast99(model = NULL, 
+                  factors = ParamNames, 
+                  n = 100, 
+                  q = rep("qunif",15), 
+                  q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp1<-des_xp100$X # On conserve le tableau avec les variations par paramètres
 length(des_xp1[,1]) # Longueur du tableau
 ```
 
-On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
+On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios.
 
 ### c. Variation des paramètres
 
-Maintenant qu'on a le design exprimental, on peut regarder comment les variations des paramètres remplissent l'espace.
-Ici, on représente les variations des paramètres 2 à 2 ici on ne représente que les paramètres K et sr. 
+Maintenant qu'on a le design exprimental, on peut regarder comment les variations des paramètres remplissent l'espace. Ici, on représente les variations des paramètres K et sr.
 
 ```{r, echo = F}
 plot(des_xp1[1:200,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres")
 plot(des_xp1[1:200,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres")
 ```
-L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux. 
 
-*A priori*, on peut voir que l'espace est assez bien rempli.
+L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux.
 
-### d. Pour 1000 trajectoires
+*A priori*, on peut voir que l'espace est bien rempli.
 
-On effectue les mêmes démarches pour 1000 scénarios. 
+### d. **Analyse de sensibilité avec** 1000 trajectoires
+
+On effectue les mêmes démarches pour 1000 scénarios.
 
 ```{r}
 des_xp1000<-fast99(model = NULL, 
@@ -655,22 +682,22 @@ Et pour le design expérimental :
 plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
 plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres")
 ```
+
 On obtient donc un recouvrement plus important de l'espace que pour seulement 100 simulations.
 
 ### e. Comparaison des deux designs expérimentaux
 
-*A priori*, on a l'impression que pour 100 scénarios, on a un recouvrement plus homogène de l'espace
-qui suggèrerait potentiellement une analyse FAST plus précise et plus fiable. En revanche, si l'on compare les deux recouvrements, on se rend compte que pour 100 simulations, il y a plus de trous à certains endroits, ce qui rend donc ce paramétrage moins efficace que pour 1000 scénarios.
+*A priori*, on a l'impression que pour 100 scénarios, on a un recouvrement plus homogène de l'espace qui suggèrerait potentiellement une analyse FAST plus précise et plus fiable. En revanche, si l'on compare les deux recouvrements, on se rend compte que pour 100 simulations, il y a plus de trous à certains endroits, ce qui rend donc ce paramétrage moins efficace que pour 1000 scénarios.
 
 ```{r, echo = F}
 plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres", col = "orange") 
 points(des_xp1[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres", col = "purple") 
-
+legend("topright", legend = c("100 simulations", "1000 simulations"), col = c("purple", "orange"), pch = 1)
 ```
 
 ### f. Lancement de l'analyse avec le modèle
 
-Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST. 
+Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST.
 
 ```{r}
 FAST1<-fast99(model = modAppli, 
@@ -688,10 +715,10 @@ FAST2<-fast99(model = modAppli,
               q.arg = ParamRanges)
 ```
 
-
 ### g. Distribution des sorties obtenues
 
 #### Pour 100 simulations
+
 ```{r, echo = F}
 par(mfrow=c(2,2))
 hist(FAST1$y[1:1500], main = "Analyse de sensibilité FAST : sortie 1", xlab = "Valeurs de la sortie 1")
@@ -700,7 +727,7 @@ hist(FAST1$y[3001:4500], main = "Analyse de sensibilité FAST : sortie 3", xlab 
 hist(FAST1$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab = "Valeurs de la sortie 4")
 ```
 
-#### Pour 1000 simulations
+#### Pour 1 000 simulations
 
 ```{r, echo = F}
 par(mfrow=c(2,2))
@@ -710,7 +737,7 @@ hist(FAST2$y[3001:4500], main = "Analyse de sensibilité FAST : sortie 3", xlab 
 hist(FAST2$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab = "Valeurs de la sortie 4")
 ```
 
-On peut à présent observer les résultats de l'analyse. 
+On peut à présent observer les résultats de l'analyse.
 
 ```{r, echo = FALSE}
 fast2<-fast99(model = modAppli, 
@@ -764,14 +791,13 @@ FAST100<-modAppli(des_xp) # Simulation
 hist(FAST100)
 ```
 
-Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle. 
+Le graphique ci-contre présente le degré d'importance des paramètres, en effets principaux et effets d'intéraction, sur les sorties du modèle.
 
-Nous pouvons déjà présenter les effets K, sr, f3 et 
-
+Nous pouvons déjà présenter les effets K, sr, f3 et
 
 ## 6. Modifications du modèle
 
-Nous faisons l'hypothèse que la transmission de l'agent pathogène est plus grande au sein d'une même classe qu'entre les classes d'âge.
+Nous faisons l'hypothèse que la transmission de l'agent pathogène est plus grande au sein d'une même classe qu'entre les classes d'âge car les individus de même classe d'âge se retrouve plus souvent proches.
 
 Voici les équations modifiées :
 
@@ -1059,10 +1085,6 @@ modApplimodif <- function(parametre){
   lines(sortiepop[10,],lty = 3,col="purple")
   lines(sortiepop[11,],lty = 3,col="red")
   lines(sortiepop[12,],lty = 3,col="blue")
-  #lines(sortiepop[13,],col="green")
-  #lines(sortiepop[14,],col="purple")
-  #lines(sortiepop[15,],col="red")
-  #lines(sortiepop[16,],col="blue")
   
     legend("topright", 
        legend = c("Sains", "Latents", "Infectieux", "Remis", "Nouveaux-nés", "Jeunes", "Adultes"), 
@@ -1079,11 +1101,20 @@ ParamNames = c("K", "sr", "m1", "m2", "m3", "f2", "f3", "portee", "t1", "t2", "t
 
 Par=matrix(ValNominale,nrow=1,ncol=16)
 sol = modApplimodif(Par)
+colnames(sol) <- c("Taux_inf", "Last_incidence", "Nbr_infectes", "Year_incidence")
+sol
 ```
+
+En différenciant les transmissions de l'AP entre classe et au sein de la même classe avec pour valeur 0,2 et 0,5. Le modèle prend plus de temps à se stabilisé et ne l'est toujours pas au bout de 2 ans.\
+- Le taux d'infectés le dernier jour de la modélisation vaut 0,12.\
+- L'incidence le dernier jour de la modélisation vaut 1,00.\
+- Le nombre maximum d'infectés en une journée est de 8,2 individus.\
+- La somme de l'incidence sur une année vaut 875,6.\
+Le taux d'infectés est inférieur au modèle de base et il déscent encore. L'incidence au dernier jours est au contraire supérieure. Le nombre maximum d'infectés est nettement inférieur. Pourtant la somme de l'incidence en une année est plus grand.
 
 #### Méthode OAT
 
-Stocker les variations de paramètres
+Stocker les variations des paramètres
 
 ```{r, echo = F}
 # Valeurs nominales pour chaque paramètre
@@ -1139,7 +1170,7 @@ for (i in 1:length(ValNominale)) {
 }
 ```
 
-Créer les graphiques : Taux d'infecté dernier jour, Incidence dernier jour, Nombre d'infecté infectieux, Somme de l'incidence à l'année
+Réaliser un graphique par sortie : Taux d'infecté dernier jour, Incidence dernier jour, Nombre d'infecté infectieux, Somme de l'incidence à l'année
 
 ```{r, echo = F}
 ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity1)) +
@@ -1153,7 +1184,7 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity1)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("Sensitivity1" = "red"),
                      labels = c("Taux d'infecté dernier jour")) +
-  coord_cartesian(ylim = c(0, 0.4)) +
+  coord_cartesian(ylim = c(0.1, 0.15)) +
   guides(color = FALSE)
 
 ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity2)) +
@@ -1167,7 +1198,7 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity2)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("Sensitivity2" = "blue"),
                      labels = c("Incidence dernier jour")) +
-  coord_cartesian(ylim = c(0, 2)) +
+  coord_cartesian(ylim = c(0.5, 1.5)) +
   guides(color = FALSE)
 
 ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity3)) +
@@ -1181,7 +1212,7 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity3)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("Sensitivity3" = "green"),
                      labels = c("Nombre d'infectieux")) +
-  coord_cartesian(ylim = c(0, 30)) +
+  coord_cartesian(ylim = c(5, 12)) +
   guides(color = FALSE)
 
 ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity4)) +
@@ -1195,13 +1226,12 @@ ggplot(SensitivityResults_2, aes(x = Val, y = Sensitivity4)) +
   theme(plot.title = element_text(hjust = 0.5)) +
   scale_color_manual(values = c("Sensitivity4" = "purple"),
                      labels = c("Somme de l'incidence à l'année")) +
-  coord_cartesian(ylim = c(600,1200)) +
+  coord_cartesian(ylim = c(650,1200)) +
   guides(color = FALSE)
 ```
 
-La variation des paramètres **K**, **lat**, **rec** et **trans_inter** ont un impact sur les sorties du modèle, ils ont donc une sensibilité.\
-- La valeur seuil d'individus dans le milieu (**K**) augmente l'incidence le dernier jour et sur l'année quadn elle est augmentée. Plus il peut y avoir des individus dans le milieu, plus l'incidence sera grande.\
-- Le taux de latence (**lat**) diminue le taux d'infecté le dernier jour, le nombre d'infectieux et l'incidence sur l'année quand il augmente. La maladie est donc freinée quand le taux de lantence augmente.\
+La variation des paramètres **loss**, **rec**, **trans_inter** et **trans_intra** ont un impact sur les sorties du modèle, ils ont donc une sensibilité.\
+- Le taux de perte de l'immunité (**loss**) augmente légèrement le taux d'infectés par jours ainsi que l'incidence à la journée et à l'année quand sa valeur d'entrée est augmentée. Ce qui veut dire que ce taux a un impact sur moins un individu reste longtemps immunisé, plus 
 - Le taux d'immunisation (**rec**) diminue le taux d'infecté par jour, le nombre d'infecté, l'incidence du dernier jour et à l'année en augmentant. Cela veut dire que plus le taux d'immunisation est élevé plus les individus infectés sont immunisés rapidement, la propagation de la maladie est donc diminuée.\
 - Le taux de transmission entre individus de la même classe (**trans_inter**) augmente l'incidence du dernier jour et à l'année ainsi que le taux d'infectés et le nombre d'infectieux.\
 
@@ -1233,25 +1263,28 @@ morris_results <- morris(model = modApplimodif,
 Afficher les graphiques
 
 ```{r, echo = F}
-par(mfrow = c(2, 2))
+par(mfrow = c(1, 2))
 
 plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours", atpen = T)
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 
 plot(morris_results, y_col = 2, main = "Incidence le dernier jour")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 
 plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux en 2 ans")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 
 plot(morris_results, y_col = 4, main = "Incidence sur l'année")
-abline(v = 0.1)
-abline(h = 0.1)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 ```
 
 Sigma mesure les interactions et les relations non linéaires entre les paramètres.\
 Mu mesure la sensibilité du paramètre.\
-
