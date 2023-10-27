@@ -124,6 +124,10 @@ $$Nv_{inf_{t+1}}=trans.S_{N_t}(\frac{II_{N_t}}{N})$$
 
 d.  Schéma des transitions entre états
 
+```{r}
+knitr::include_graphics("Schema_MEPI.png")
+```
+
 e.  Les hypothèses principales du modèle sont :
 
 Paramètres démographiques :
@@ -595,7 +599,7 @@ ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1
 
 des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp1<-des_xp100$X # On conserve le tableau avec les variations par paramètres
-length(des_xp[,1]) # Longueur du tableau
+length(des_xp1[,1]) # Longueur du tableau
 
 ```
 
