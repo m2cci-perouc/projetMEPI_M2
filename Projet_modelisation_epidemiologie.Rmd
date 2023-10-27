@@ -319,12 +319,12 @@ sol <- modAppli(Par)
 colnames(sol) <- c("Taux_inf", "Last_incidence", "Nbr_infectes", "Year_incidence")
 sol
 ```
-
-Suite à l'introdutcion d'un individu infecté par l'agent pathogène dans le modèle, une vague de propagation se déclanche. Elle est rapidement stabilisée car de nombreux individus sont immunisés. Après 2 ans les proportions d'individus dans chaque classes sont stabilisés, les sorties qui sont calculées le dernier jour sont donc les sorties stables.\
+Suite à l'introdutcion d'un individu infecté par l'agent pathogène avec les paramètres aux valeurs nominales, une vague de propagation se déclanche. Elle est rapidement stabilisée car de nombreux individus sont immunisés. Après 2 ans les proportions d'individus dans chaque classes sont stabilisés, les sorties calculées le dernier jour sont donc les sorties stables.\
 - Le taux d'infectés le dernier jour de la modélisation vaut 0,18.\
 - L'incidence le dernier jour de la modélisation vaut 0,65.\
 - Le nombre maximum d'infectés en une journée est de 37,2 individus.\
 - La somme de l'incidence sur une année vaut 280,9.
+
 
 ## 2. Analyse de sensibilité : méthode OAT
 
@@ -545,6 +545,8 @@ ggplot(SensitivityResults, aes(x = Val, y = Sensitivity4)) +
 
 ### d. Interpréter les résultats et expliciter des limites possibles
 
+### d. Interpréter les résultats et expliciter des limites possibles
+
 La variation des paramètres **K**, **loss**, **rec** et **trans** ont un impact sur les sorties du modèle, ils sont donc sensibles aux valeurs d'entrée.\
 - La valeur de **K** a donc un impact sur la dynamique de la maladie, plus le milieu peut supporter un grand nombre d'individu, plus l'incidence du dernier jour et l'incidence à l'année sera grand.\
 - Le paramètre **loss** soit le taux de perte de l'immunité d'un individu impact également la dynamique de la maladie. Quand ce taux augmente, le taux d'infectés le dernier jours et les incidences augmentent également.\
@@ -559,9 +561,8 @@ Globalement, les paramètres avec les plus grandes sensibilités sont **K**, **l
 
 ## 3. Analyse de sensibilité : Méthode Morris
 
-Définir les paramètres de l'analyse Morris
-
-```{r}
+```{r, echo = F}
+# Définir les paramètres de l'analyse Morris
 n <- 100  # Nombre de trajectoires
 p <- length(ValNominale)  # Nombre de paramètres
 lower <- ValNominale*0.75
@@ -577,18 +578,26 @@ morris_results <- morris(model = modAppli,
                          scale=T)
 ```
 
-Visualiser les résultats de l'analyse Morris.
+Visualiser les résultats
 
 ```{r}
 par(mfrow = c(1, 2))
-plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours")
-abline(a = 0, b = 1); abline(a = 0, b = 0.5, lty = 2); abline(a = 0, b = 0.1, lty = 3)
+plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours", atpen = T)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 plot(morris_results, y_col = 2, main = "Incidence le dernier jour")
-abline(a = 0, b = 1); abline(a = 0, b = 0.5, lty = 2); abline(a = 0, b = 0.1, lty = 3)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux")
-abline(a = 0, b = 1); abline(a = 0, b = 0.5, lty = 2); abline(a = 0, b = 0.1, lty = 3)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 plot(morris_results, y_col = 4, main = "Incidence sur l'année")
-abline(a = 0, b = 1); abline(a = 0, b = 0.5, lty = 2); abline(a = 0, b = 0.1, lty = 3)
+abline(a = 0, b = 1)
+abline(a = 0, b = 0.5, lty = 2)
+abline(a = 0, b = 0.1, lty = 3)
 ```
 Sigma mesure les interactions et les relations non linéaires entre les paramètres.\
 Mu* mesure la sensibilité du paramètre.\
@@ -609,18 +618,21 @@ La zone la plus à droite a les paramètres linéaires.
 Les paramètres influeçants le plus les sorties sont **K**, **sr**, \*\*portee\*, **trans** et **loss**. Nous ne retrouvons pas le paramètre **rec** qui étaient sensible dans l'analyse OAT.
 
 ## 4. Analyse de sensibilité : Méthode FAST
-
-Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html> \### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'.
+Lien pour la méthode sur R : <https://rdrr.io/cran/fast/man/sensitivity.html>
+### a. Le package utilisé pour l'analyse de sensibilité avec la méthode FAST est 'sensitivity'. 
 
 ```{r}
 library(sensitivity)
 ```
 
-Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol.
+Ce package permet d'utiliser des méthodes d'analyse de sensibilité globales et non de screening comme précédemment avec les méthodes OAT et Morris. C'est-à-dire que l'on peut prendre en compte le caractère continu des variables d'entrée et les intéractions entre elles. On peut donc étudier les effets **principaux** (paramètre seul) et **totaux** (intéractions possibles avec d'autres paramètres + paramètre seul) des variables d'entrée. Ce sont des méthodes basées sur la décomposition de la variance. Dans cette catégorie, nous pouvons retrouver la méthode **FAST**, ou 'Fourier Amplitude Sensitivity Test', mais encore la méthode du plan factoriel ou Sobol. 
 
-Le principe est de choisir pour cette étude : - Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.* - Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.* - Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
+Le principe est de choisir pour cette étude : 
+  - Les variables d'entrée que l'on souhaite suivre. *Dans notre cas, nous choisissons tous les paramètres d'entrée.*
+  - Leur plage de variation, avec une valeur minimale et une valeur maximale qui bornent cette plage. *Nous choisissons une variation de +/- 25% de la valeur de base du paramètre afin de rester dans des valeurs réalistes pour le modèle.*
+  - Une loi de distribution qui régit la plage de variation. *Nous avons choisi une loi uniforme ('qunif') afin d'avoir une variation homogène de nos paramètres et de n'avoir aucun a priori sur ces derniers.*
 
-Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*.
+Un certain nombre de simulations est effectué pour chaque paramètre dans le but de faire une décomposition de la variance. Le nombre de simulation est important à déterminer car top peu de simulations ne permettent pas de rendre compte finement des variations de la variance pour les paramètres, et trop de simulations peuvent être très coûteuses en temps de calcul. *Dans notre cas, nous allons simuler pour 100 et 1000 scénarios*. 
 
 En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque variable d'entrée étudiée et des graphiques nous permettent de nous représenter les effets des différents paramètres.
 
@@ -628,8 +640,7 @@ En sortie de l'analyse, des **indices de sensibilité** sont donnés pour chaque
 
 ### b. Pour 100 simulations
 
-On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'.
-
+On définit le design expérimental en premier lieu, puis on l'appelle avec notre fonction afin de faire l'analyse de sensibilité. Pour ce faire, on utilise la fonction 'fast99'. 
 ```{r}
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
 
@@ -639,25 +650,25 @@ length(des_xp1[,1]) # Longueur du tableau
 
 ```
 
-On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios.
+On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
 
 ### c. Variation des paramètres
 
-Maintenant qu'on a le design exprimental, on peut regarder comment les variations des paramètres remplissent l'espace. Ici, on représente les variations des paramètres 2 à 2 ici on ne représente que les paramètres K et sr.
+Maintenant qu'on a le design experimental, on peut regarder comment les variations des paramètres remplissent l'espace.
+Ici, on représente les variations des paramètres 2 à 2 ici on ne représente que les paramètres K et sr. 
 
 ```{r, echo = F}
 par(mfrow=c(1,2))
 plot(des_xp1[1:200,1:2], type='p', main = "Variation des paramètres K et sr")
 plot(des_xp1[1:200,1:2], type='b', main = "Variation des paramètres K et sr")
 ```
-
-L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux.
+L'espace des paramètres est rempli de la même manière quelque soient les paramètres deux à deux. 
 
 *A priori*, on peut voir que l'espace est assez bien rempli.
 
 ### d. Pour 1000 trajectoires
 
-On effectue les mêmes démarches pour 1000 scénarios.
+On effectue les mêmes démarches pour 1000 scénarios. 
 
 ```{r}
 des_xp1000<-fast99(model = NULL, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
@@ -675,12 +686,12 @@ par(mfrow=c(1,2))
 plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr") 
 plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr") 
 ```
-
 On obtient donc un recouvrement plus important de l'espace que pour seulement 100 simulations.
 
 ### e. Comparaison des deux designs expérimentaux
 
-*A priori*, on a l'impression que pour 100 scénarios, on a un recouvrement plus homogène de l'espace qui suggèrerait potentiellement une analyse FAST plus précise et plus fiable. En revanche, si l'on compare les deux recouvrements, on se rend compte que pour 100 simulations, il y a plus de trous à certains endroits, ce qui rend donc ce paramétrage moins efficace que pour 1000 scénarios.
+*A priori*, on a l'impression que pour 100 scénarios, on a un recouvrement plus homogène de l'espace
+qui suggèrerait potentiellement une analyse FAST plus précise et plus fiable. En revanche, si l'on compare les deux recouvrements, on se rend compte que pour 100 simulations, il y a plus de trous à certains endroits, ce qui rend donc ce paramétrage moins efficace que pour 1000 scénarios.
 
 ```{r, echo = F}
 par(mfrow=c(1,1))
@@ -691,7 +702,7 @@ points(des_xp1[1:2000,1:2], type='p', main = "Variation des paramètres K et sr"
 
 ### f. Lancement de l'analyse avec le modèle
 
-Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST.
+Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST. 
 
 ```{r}
 FAST1<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
@@ -701,10 +712,10 @@ FAST1<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",1
 FAST2<-fast99(model = modAppli, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges)
 ```
 
+
 ### g. Distribution des sorties obtenues
 
 #### Pour 100 simulations
-
 ```{r, echo = F}
 par(mfrow=c(2,2))
 hist(FAST1$y[1:1500], main = "Analyse de sensibilité FAST : sortie 1", xlab = "Valeurs de la sortie 1")
@@ -715,11 +726,12 @@ hist(FAST1$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab 
 
 On obtient donc un histogramme pour chaque sortie du modèle avec la fréquence donnée pour chaque plage de valeur de sortie obtenue.
 
-Par exemple, sur les 1500 simulations, pour la première sortie, on retrouve environ 1200 fois une valeur comprise entre 0.18 et 0.19, soit dans 80% des cas. Cela signifie que faire varier les paramètres d'entrée influence peu la variation de la sortie 1. Ce comportement est aussi observé pour la sortie 3, de manière moins importante que pour la sortie 1.
+Par exemple, sur les 1500 simulations, pour la première sortie, on retrouve environ 1200 fois une valeur comprise entre 0.18 et 0.19, soit dans 80% des cas. Cela signifie que faire varier les paramètres d'entrée influence peu la variation de la sortie 1. Ce comportement est aussi observé pour la sortie 3, de manière moins importante que pour la sortie 1. 
 
-En revanche, on retrouve une fréquence à peu près similaire sur l'ensemble des valeurs que peuvent prendre la sortie 2 et la sortie 4. C'est-à-dire que faire varier une valeur d'un paramètre d'entrée fait beaucoup varier la valeur de sortie.
+En revanche, on retrouve une fréquence à peu près similaire sur l'ensemble des valeurs que peuvent prendre la sortie 2 et la sortie 4. C'est-à-dire que faire varier une valeur d'un paramètre d'entrée fait beaucoup varier la valeur de sortie. 
 
-Les sorties 2 et 4 sont donc sensibles au choix du paramétrage du modèle -dans le cas de 100 simulations- , contrairement aux sorties 1 et 3.
+Les sorties 2 et 4 sont donc sensibles au choix du paramétrage du modèle -dans le cas de 100 simulations- , contrairement aux sorties 1 et 3. 
+
 
 #### Pour 1000 simulations
 
@@ -731,7 +743,7 @@ hist(FAST2$y[3001:4500], main = "Analyse de sensibilité FAST : sortie 3", xlab 
 hist(FAST2$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab = "Valeurs de la sortie 4")
 ```
 
-Sous la même logique, on retrouve ici des distributions de fréquence de valeurs de paramètres de sortie pour les 1000 simulations.
+Sous la même logique, on retrouve ici des distributions de fréquence de valeurs de paramètres de sortie pour les 1000 simulations. 
 
 Dans ce cas, les comportements sont assez similaires pour les 4 sorties : on observe une plage de valeurs centrale qui sort plus fréquemment que les autres.
 
@@ -825,10 +837,11 @@ modAppli2 <- function(parametre, s=si){
   }# fin boucle scenarios AS
   return(sorties[,s])
 }
-
 ```
 
-On peut à présent observer les résultats de l'analyse pour les 4 sorties du modèle.
+
+
+On peut à présent observer les résultats de l'analyse pour les 4 sorties du modèle. 
 
 ```{r, echo = F}
 # On fait 4 fois le FAST pour séparer les différentes sorties
@@ -850,10 +863,55 @@ plot(FAST1C)
 plot(FAST1D)
 
 ```
+Pour chaque sortie, on obtient les indices de sensibilité pour chaque paramètre, en prenant en compte les effets principaux et les intéractions. 
+
+**Sortie 1 : Taux d'infectés (latents et infectieux) le dernier jour : ** 
+
+Pour cette sortie, on observe une sensibilité particulière pour les paramètres K, sr, f3 et portee (en intéraction) et m1, m3, t2, trans, lat, rec et loss pour des effets principaux, m2 en moindre mesure. 
+
+$$ \text{Taux d'infectés (latents et infectieux) le dernier jour} = \frac{L_{N_t} + {I_{N_t}}}{N_t}$$\
+
+D'après l'équation, nous pouvons voir que ce résultat dépend de $L_{N_t}$, $I_{N_t}$ et ${N_t}$.
+
+Ces variables dépendent elles-même de quasiment tous les paramètres, hormis ce qui concerne les individus sains et remis, soit les paramètres f2, t1 et madd. 
+
+**Sortie 2 : Incidence de l'AP le dernier jour**
+
+$$ \text{Incidence de l'AP le dernier jour} = \frac{transS_{N_t}I_{N_t}}{N_t}$$\
+
+Cette sortie est sensible à deux paramètres qui sont trans et K en effet principal. 
+La présence de trans s'explique par l'équation ci-dessus, et K par le fait que c'est un facteur limitant de S, I et N. 
+
+**Sortie 3 : Nombre maximum d'infections sur 2 ans**
+
+$$ \text{Nombre maximum d'infectieux en 2 ans} = max(I_{N_t})$$\
+
+Le nombre maximum d'infectieux en 2 ans est surtout sensible à K, trans, lat et rec. 
+
+Pour rappel, l'équation permettant d'obtenir $I_{N_t}$ est : 
+$$I_{N_{t}}=I_{NN_{t}}+I_{J_{t}}+I_{A_{t}}$$
+Avec : 
+$$I_{NN{t+1}} = I_{NN_t}(1 - m_{1} - madd - t_{1} - rec) + lat . L_{NN_t}$$\
+$$I_{J_{t+1}} = I_{NN_t}.t_{1} + I_{J_t}(1 - m_{2} - madd - t_{2} - rec) + lat.L_{J_t}$$\
+$$I_{A_{t+1}}= I_{J_t}.t_{2} + I{A_t}(1 - m_{3} - madd - rec) + lat.L_{A_t}$$
+Où l'on retrouve tous ces paramètres (K apparaît intrinsèquement au fait qu'il a une influence sur le nombre d'individus apparaissant dans la population dû aux naissances par les adultes). La mort dûe à l'AP ne semble pas avoir d'incidence majeure sur ce résultat en revanche. 
+
+**Sortie 4 : Incidence de l'AP sur 1 an**
+
+$$ \text{Incidence de l'AP sur 1 an} = \sum_{t=1}^{365}\frac{transS_{N_t}I_{N_t}}{N_t}$$
+Pour ce résultat, ce sont K, trans et loss pour lequel il est le plus sensible. Trans est exprimé explicitement dans la formule ci-dessus et K, comme pour la sortie 2. Loss est important ici contrairement à la sortie 2 car on étudie une période de 2 ans et non un maximum. 
+
+## 5. Discussion
+
+
 
 ## 6. Modifications du modèle
 
-Nous faisons l'hypothèse que la transmission de l'agent pathogène est plus grande au sein d'une même classe qu'entre les classes d'âge car les individus de même classe d'âge se retrouve plus souvent proches.
+### a. Explication des modifications 
+
+Nous faisons l'hypothèse que la transmission de l'agent pathogène est plus grande au sein d'une même classe qu'entre les classes d'âge car les individus de même classe d'âge ont plus d'intéractions.
+
+Nous pouvons imaginer ce cas de figure pour un élevage d'individus parqués par classe d'âge, qui vont donc s'infecter plus fréquemment. 
 
 Voici les équations modifiées :
 
@@ -1156,7 +1214,7 @@ ValNominale = c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365, 1/3
 ParamNames = c("K", "sr", "m1", "m2", "m3", "f2", "f3", "portee", "t1", "t2", "trans_inter", "trans_intra", "lat", "rec", "loss", "madd")
 
 Par=matrix(ValNominale,nrow=1,ncol=16)
-sol = modApplimodifplot(Par)
+sol = modApplimodif(Par)
 colnames(sol) <- c("Taux_inf", "Last_incidence", "Nbr_infectes", "Year_incidence")
 sol
 ```
@@ -1316,12 +1374,12 @@ morris_results <- morris(model = modApplimodif,
                          scale=T)
 ```
 
-Afficher les graphiques de l'analyse de Morris sur le modèle modifié.
+Afficher les graphiques
 
 ```{r, echo = F}
 par(mfrow = c(1, 2))
 
-plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours")
+plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours", atpen = T)
 abline(a = 0, b = 1)
 abline(a = 0, b = 0.5, lty = 2)
 abline(a = 0, b = 0.1, lty = 3)
@@ -1331,7 +1389,7 @@ abline(a = 0, b = 1)
 abline(a = 0, b = 0.5, lty = 2)
 abline(a = 0, b = 0.1, lty = 3)
 
-plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux")
+plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux en 2 ans")
 abline(a = 0, b = 1)
 abline(a = 0, b = 0.5, lty = 2)
 abline(a = 0, b = 0.1, lty = 3)
@@ -1358,7 +1416,8 @@ Enfin, les paramètres sont linéaires. \
 
 #### Méthode FAST
 
-**Design expérimental** On fait donc l'analyse de sensibilité FAST pour 1000 simulations.
+**Design expérimental**
+On fait donc l'analyse de sensibilité FAST pour 1000 simulations.
 
 ```{r}
 ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1, function(x){list(min=x[1], max = x[2])}) # plage de variation des paramètres en tant que liste de listes
@@ -1366,11 +1425,130 @@ des_xp1000<-fast99(model = NULL, factors = ParamNames, n = 1000, q = rep("qunif"
 des_xp2<-des_xp1000$X # On conserve le tableau avec les variations par paramètres
 length(des_xp2[,1]) # Longueur du tableau
 ```
-
-On a donc un tableau avec 16000 paramètres puisqu'on en a ajouté un.
+On a donc un tableau avec 16000 paramètres puisqu'on en a ajouté un. 
 
 **Application au modèle modifié**
 
 ```{r}
 FASTmod<-fast99(model = modApplimodif, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+```
+
+```{r, echo = F}
+modApplimodif2 <- function(parametre, s = si){  
+  
+  # CONDITIONS DE SIMULATION
+  temps = 2*365; # nb de pas de temps (en jours)
+  # initialisation pour la sauvegarde de 4 sorties ponctuelles pour chaque jeu de parametres
+  sorties <- matrix(0, nrow=nrow(parametre), ncol=4)
+  
+  # boucle des scenarios de l'?chantillonnage de l'AS
+  for (i in 1:nrow(parametre)) { 
+    
+    # STRUCTURE & PARAMETRES DU MODELE
+    
+    # Parametres demographiques
+    K = parametre[i,1];		    # Nombre maximal d'individus que le milieu peut supporter
+    sr = parametre[i,2];	    # Sex-ratio
+    m1 = parametre[i,3];	    # Mortalité naturelle des nouveaux-nés
+    m2 = parametre[i,4];	    # Mortalité naturelle des jeunes
+    m3 = parametre[i,5];	    # Mortalité naturelle des adultes
+    f2 = parametre[i,6];	    # Taux de fécondité des jeunes
+    f3 = parametre[i,7];	    # Taux de fécondité des adultes
+    portee = parametre[i,8];	# Effectif maximal d'une portée
+    t1 = parametre[i,9];	    # Probabilité de passage de la classe d'âge "nouveau-né" à "jeune"
+    t2 = parametre[i,10];	    # Probabilité de passage de la classe d'âge "jeune" à "adulte"
+    
+    # Parametres lies a l'agent pathogène
+    trans_inter = parametre[i,11]; # force d'infection inter-classe
+    trans_intra = parametre[i,12]; # force d'infection intra-classe
+    lat = parametre[i,13];	  # Taux de la latence
+    rec = parametre[i,14];	  # Taux de passage à un état d'immmunité
+    loss = parametre[i,15];	  # Taux de passage d'un état d'immunité à un état sensible (sain)
+    madd = parametre[i,16];	  # Mortalité lié à l'infection par l'AP
+    
+    # INITIALISATION
+    MAT <- array(0, dim=c(4,4,temps)); # nb indiv par classe d'age en ligne (derniere ligne = pop tot), etat de sante en colonne, pas de temps (dimension 3)
+    nvinf <- array(0, dim=c(temps));
+    # conditions initiales (la population est a sa structure d'equilibre, calculee par ailleurs)
+    MAT[1,1,1] <- 27; # Effectif des individus nouveaux-nes sains le premier jour
+    MAT[2,1,1] <- 23; # Effectif des individus jeunes sains le premier jour
+    MAT[3,1,1] <- 36; # Effectif des individus adultes sains le premier jour 
+    MAT[3,3,1] <- 1;  # Effectif des individus adultes infectes infectieux le premier jour
+    
+    # Effectifs par etat de sante
+    MAT[4,1,1] <- sum(MAT[1:3,1,1]); MAT[4,2,1] <- sum(MAT[1:3,2,1]); MAT[4,3,1] <- sum(MAT[1:3,3,1]); MAT[4,4,1] <- sum(MAT[1:3,4,1]);
+    
+    # SIMULATIONS
+    # Boucle du temps
+    for (t in 1:(temps-1)) { 
+      # Classe d'age Nouveau-né
+      # RQ : les naissances sont XX, les nouveaux nes etant dans l'etat NN
+      N <- sum(MAT[4,,t]);	# taille de la pop en t
+      MAT[1,1,t+1] <- MAT[1,1,t]*(1-m1-t1-trans_inter*MAT[2,3,t]*MAT[3,3,t]- trans_intra*MAT[1,3,t]/N )+ loss*MAT[1,4,t] 
+      + max(0, sr*portee*(sum(MAT[2,,t])*f2 + sum(MAT[3,,t])*f3) * (1 - N/K)); 
+      MAT[1,2,t+1] <- MAT[1,2,t]*(1-m1-t1-lat) + MAT[1,1,t]*(trans_inter*MAT[2,3,t]*MAT[3,3,t]+trans_intra*MAT[1,3,t])/N; 
+      MAT[1,3,t+1] <- MAT[1,3,t]*(1-m1-madd-t1-rec) + lat*MAT[1,2,t]; 
+      MAT[1,4,t+1] <- MAT[1,4,t]*(1-m1-t1-loss) + rec*MAT[1,3,t]; 
+      # Les jeunes
+      MAT[2,1,t+1] <- MAT[1,1,t]*t1	+ MAT[2,1,t]*(1-m2-t2-trans_inter*MAT[1,3,t]*MAT[3,3,t]- trans_intra*MAT[2,3,t]/N) + loss*MAT[2,4,t];
+      MAT[2,2,t+1] <- MAT[1,2,t]*t1	+ MAT[2,2,t]*(1-m2-t2-lat) + MAT[2,1,t]*(trans_inter*MAT[1,3,t]*MAT[3,3,t] + trans_intra*MAT[2,3,t])/N;
+      MAT[2,3,t+1] <- MAT[1,3,t]*t1	+ MAT[2,3,t]*(1-m2-madd-t2-rec)	+ lat*MAT[2,2,t];
+      MAT[2,4,t+1] <- MAT[1,4,t]*t1	+ MAT[2,4,t]*(1-m2-t2-loss)	+ rec*MAT[2,3,t];
+      # Les adultes
+      MAT[3,1,t+1] <- MAT[2,1,t]*t2	+ MAT[3,1,t]*(1-m3-trans_inter*MAT[1,3,t]*MAT[2,3,t]- trans_intra*MAT[3,3,t]/N) + loss*MAT[3,4,t];
+      MAT[3,2,t+1] <- MAT[2,2,t]*t2	+ MAT[3,2,t]*(1-m3-lat)	+ MAT[3,1,t]*(trans_inter*MAT[1,3,t]*MAT[2,3,t] + trans_intra*MAT[3,3,t])/N;
+      MAT[3,3,t+1] <- MAT[2,3,t]*t2	+ MAT[3,3,t]*(1-m3-madd-rec) + lat*MAT[3,2,t];
+      MAT[3,4,t+1] <- MAT[2,4,t]*t2	+ MAT[3,4,t]*(1-m3-loss) + rec*MAT[3,3,t];
+      # calcul des effectifs  N par etat de sante
+      MAT[4,1,t+1] <- sum(MAT[1:3,1,t+1]); 
+      MAT[4,2,t+1] <- sum(MAT[1:3,2,t+1]); 
+      MAT[4,3,t+1] <- sum(MAT[1:3,3,t+1]); 
+      MAT[4,4,t+1] <- sum(MAT[1:3,4,t+1]);
+      nvinf[t+1]   <- trans_intra*MAT[4,1,t]*MAT[4,3,t]/N + trans_inter*MAT[4,1,t]*MAT[4,3,t]/N
+      
+    }# fin boucle temps
+    
+    # Sorties ponctuelles a analyser
+    
+    # Taux des infectes au dernier jours
+    sortie1 <- (MAT[4,2,temps] + MAT[4,3,temps]) / sum(MAT[4,,temps])
+    # Incidence du dernier jour
+    sortie2 <- nvinf[temps]
+    # Nombre maximum d'infectes infectieux sur les 2 ans
+    sortie3 <- max(MAT[4,3,1:temps])
+    # Incidence sur l'année
+    sortie4 <- sum(nvinf[1:365])
+    
+    sorties[i,1] <- sortie1;
+    sorties[i,2] <- sortie2;
+    sorties[i,3] <- sortie3;
+    sorties[i,4] <- sortie4;
+    
+  }# fin boucle scenarios AS
+  return(sorties[,s])
+} # fin fonction du modele
+
+```
+
+On peut à présent observer les résultats de l'analyse pour les 4 sorties du modèle. 
+
+```{r, echo = F}
+# On fait 4 fois le FAST pour séparer les différentes sorties
+si<-1
+FAST1A<- fast99(model = modApplimodif2, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+si<-2
+FAST1B<- fast99(model = modApplimodif2, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+si<-3
+FAST1C<- fast99(model = modApplimodif2, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+si<-4
+FAST1D<- fast99(model = modApplimodif2, factors = ParamNames, n = 1000, q = rep("qunif",16), q.arg = ParamRanges)
+```
+
+```{r, echo = F}
+par(mfrow=c(1,1))
+plot(FAST1A)
+plot(FAST1B)
+plot(FAST1C)
+plot(FAST1D)
+
 ```
