@@ -1,4 +1,3 @@
-Modification-du-modèle
 ---
 title: "Projet_modélisation_épidémiologie"
 author: "Chloe Perou - Raphaelle Lebailly"
