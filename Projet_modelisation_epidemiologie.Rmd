@@ -726,10 +726,10 @@ Les sorties 2 et 4 sont donc sensibles au choix du paramétrage du modèle -dans
 
 ```{r, echo = F}
 par(mfrow=c(2,2))
-hist(FAST2$y[1:1500], main = "Analyse de sensibilité FAST : sortie 1", xlab = "Valeurs de la sortie 1")
-hist(FAST2$y[1501:3000], main = "Analyse de sensibilité FAST : sortie 2", xlab = "Valeurs de la sortie 2")
-hist(FAST2$y[3001:4500], main = "Analyse de sensibilité FAST : sortie 3", xlab = "Valeurs de la sortie 3")
-hist(FAST2$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab = "Valeurs de la sortie 4")
+hist(FAST2$y[1:15000], main = "Analyse de sensibilité FAST : sortie 1", xlab = "Valeurs de la sortie 1")
+hist(FAST2$y[15001:30000], main = "Analyse de sensibilité FAST : sortie 2", xlab = "Valeurs de la sortie 2")
+hist(FAST2$y[30001:45000], main = "Analyse de sensibilité FAST : sortie 3", xlab = "Valeurs de la sortie 3")
+hist(FAST2$y[45001:60000], main = "Analyse de sensibilité FAST : sortie 4", xlab = "Valeurs de la sortie 4")
 ```
 
 Sous la même logique, on retrouve ici des distributions de fréquence de valeurs de paramètres de sortie pour les 1000 simulations. 
@@ -864,18 +864,24 @@ D'après l'équation, nous pouvons voir que ce résultat dépend de $L_{N_t}$, $
 
 Ces variables dépendent elles-même de quasiment tous les paramètres, hormis ce qui concerne les individus sains et remis, soit les paramètres f2, t1 et madd. 
 
+Les paramètres K et f3 sont en intéraction pour les naissances dans le compartiment des sains par les adultes. Nous pouvons donc imaginer qu'une population en croissance, avec un effectif grandissant, peut influencer fortement le nombre d'infectés par rapport à la population totale après un épisode d'épidémie. Ce constat peut être logique si l'on pose que plus d'individus dans une population peut induire plus de cas d'infection. Nous pouvons imaginer la même chose pour sr et portée dans le cas de la reproduction des jeunes, mais de manière légèrement moins marquée (les jeunes se reproduisant moins que les adultes).
+
+Pour la mortalité naturelle (m1, m2 et m3), ces paramètres influent de manière importante sur la sortie, au même titre que les naissances. Nous pouvons remarquer que le taux d'infectés le dernier jour est moins sensible à m2, qui cible la classe des jeunes, qui ont une mortalité moins importante que les 2 autres classes. Le passage de la classe des jeunes à adultes constitue une sortie vers une classe qui se reproduit plus (les adultes), et donc va avoir une influence sur le résultat.
+
+Les paramètres liés au pathogène (trans, lat, rec, loss) vont naturellement influencer le résultat car il concerne le taux d'infection final. 
+
 **Sortie 2 : Incidence de l'AP le dernier jour**
 
 $$ \text{Incidence de l'AP le dernier jour} = \frac{transS_{N_t}I_{N_t}}{N_t}$$\
 
-Cette sortie est sensible à deux paramètres qui sont trans et K en effet principal. 
-La présence de trans s'explique par l'équation ci-dessus, et K par le fait que c'est un facteur limitant de S, I et N. 
+Cette sortie est sensible à deux paramètres qui sont loss et K en effet principal. 
+La présence de loss s'expliquerait par le fait que la perte d'immunité ajoute des individus dans le compartiment S (et ce de mannière plus efficace que par les naissances). Pour K, par le fait que c'est un facteur limitant des effectifs des classes d'âge, ce qui est logique car plus les effectifs dans la population d'individus sains est importante, plus d'individus peuvent être contaminés et contaminer en retour. 
 
 **Sortie 3 : Nombre maximum d'infections sur 2 ans**
 
 $$ \text{Nombre maximum d'infectieux en 2 ans} = max(I_{N_t})$$\
 
-Le nombre maximum d'infectieux en 2 ans est surtout sensible à K, trans, lat et rec. 
+Le nombre maximum d'infectieux en 2 ans est surtout sensible à K, trans, lat et rec en effet principal, soit des paramètres concernant la limite des effectifs dans la population et relatifs à l'agent pathogène. 
 
 Pour rappel, l'équation permettant d'obtenir $I_{N_t}$ est : 
 $$I_{N_{t}}=I_{NN_{t}}+I_{J_{t}}+I_{A_{t}}$$
@@ -883,12 +889,12 @@ Avec :
 $$I_{NN{t+1}} = I_{NN_t}(1 - m_{1} - madd - t_{1} - rec) + lat . L_{NN_t}$$\
 $$I_{J_{t+1}} = I_{NN_t}.t_{1} + I_{J_t}(1 - m_{2} - madd - t_{2} - rec) + lat.L_{J_t}$$\
 $$I_{A_{t+1}}= I_{J_t}.t_{2} + I{A_t}(1 - m_{3} - madd - rec) + lat.L_{A_t}$$
-Où l'on retrouve tous ces paramètres (K apparaît intrinsèquement au fait qu'il a une influence sur le nombre d'individus apparaissant dans la population dû aux naissances par les adultes). La mort dûe à l'AP ne semble pas avoir d'incidence majeure sur ce résultat en revanche. 
+Où l'on retrouve tous ces paramètres (K apparaît intrinsèquement du fait qu'il a une influence sur le nombre d'individus apparaissant dans la population dû aux naissances par les adultes). Les pertes, et donc la mort dûe à l'AP ne semble pas avoir d'incidence majeure sur ce résultat en revanche puisque l'on recherche une valeur maximale. 
 
 **Sortie 4 : Incidence de l'AP sur 1 an**
 
 $$ \text{Incidence de l'AP sur 1 an} = \sum_{t=1}^{365}\frac{transS_{N_t}I_{N_t}}{N_t}$$
-Pour ce résultat, ce sont K, trans et loss pour lequel il est le plus sensible. Trans est exprimé explicitement dans la formule ci-dessus et K, comme pour la sortie 2. Loss est important ici contrairement à la sortie 2 car on étudie une période de 2 ans et non un maximum. 
+Pour ce résultat, ce sont K, trans et loss en effets principaux pour lequel il est le plus sensible. Trans est exprimé explicitement dans la formule ci-dessus et K, comme pour la sortie 2. Loss est important ici contrairement à la sortie 2 car on étudie une période de 2 ans et non un maximum. Ce paramètre est important pour l'entrée de nouveaux individus dans le compartiment 'S'.
 
 ## 5. Discussion
 
@@ -1531,3 +1537,44 @@ plot(FAST1C)
 plot(FAST1D)
 
 ```
+
+
+Pour chaque sortie, on obtient les indices de sensibilité pour chaque paramètre, en prenant en compte les effets principaux et les intéractions. 
+
+**Sortie 1 : Taux d'infectés (latents et infectieux) le dernier jour : ** 
+
+Cette fois, on observe une sensibilité à rec, loss et t2, m3 et trans_intra en moindre mesure pour les effets principaux. 
+
+Dans ce cas, moins de paramètres influent ce résultat et ne sont pas en intéraction. C'est le cas des naissances dans le compartiment des sains par exemple. Ici, le taux d'infectés est influencé par les paramètres concernant le pathogène principalement, ce qui est logique car on s'intéresse au taux d'infectés final. 
+
+
+$$ \text{Taux d'infectés (latents et infectieux) le dernier jour} = \frac{L_{N_t} + {I_{N_t}}}{N_t}$$\
+
+
+**Sortie 2 : Incidence de l'AP le dernier jour**
+
+$$ \text{Incidence de l'AP le dernier jour} = \frac{transS_{N_t}I_{N_t}}{N_t}$$\
+
+L'incidence de l'AP le dernier jour est influencée par m3, trans_inter, rec et loss, et t2 et trans_intra en moindre mesure, uniquement en effets principaux.
+Dans le premier modèle, cette valeur était sensible à loss et K uniquement. 
+
+Il est possible que trans_inter soit influent car il impacte directement toutes les classes d'âge, tandis que trans_intra est moins influent, car le passage à la classe d'âge supérieur est plus lent. Rec et loss concernent les individus qui entrent et qui sortent d'un état d'immunité, ce qui est important car on souhaite connaître l'effet de l'agent pathogène sur la population, et donc les individus sains. 
+
+**Sortie 3 : Nombre maximum d'infections sur 2 ans**
+
+$$ \text{Nombre maximum d'infectieux en 2 ans} = max(I_{N_t})$$\
+
+Trans_intra et rec en effets principaux sont les paramètres qui vont avoir un effet important sur le nombre maximal d'infectieux sur 2 ans. Nous retrouvons de nouveau rec, qui vient influencer le résultat par la perte de l'état infectieux. En revanche, trans_intra a une inlfuence possiblement positive, car il s'agit d'une valeur élevée de transmission de l'agent pathogène, ce qui va donc avoir plus d'effet que trans_intra par exemple. 
+
+
+
+**Sortie 4 : Incidence de l'AP sur 1 an**
+
+$$ \text{Incidence de l'AP sur 1 an} = \sum_{t=1}^{365}\frac{transS_{N_t}I_{N_t}}{N_t}$$
+
+
+Pour ce résultat, ce sont trans_intra, trans_inter, rec et loss en effets principaux pour lesquels il est le plus sensible. On retrouve bien ici trans et loss. Le fait de perdre l'immunité vient contrebalancer les forts taux de transmission. 
+
+
+
+Globalement, l'effet limitant de K n'est plus une composante du modèle qui va avoir une influence importante, contrairement aux deuc facteurs de transmission. 
