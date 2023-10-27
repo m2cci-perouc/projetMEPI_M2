@@ -315,7 +315,6 @@ ValNominale = c(100, 0.5, 0.0014, 0.00029, 0.0019, 0.0019, 0.0082, 5, 1/365,
 
 Par=matrix(ValNominale,nrow=1,ncol=15)
 sol = modAppli(Par)
-
 ```
 
 ## 2. Analyse de sensibilité : méthode OAT
@@ -567,7 +566,6 @@ morris_results <- morris(model = modAppli,
                          binf = lower,
                          bsup = upper,
                          scale=T)
-
 ```
 
 Visualiser les résultats
@@ -618,7 +616,6 @@ ParamRanges<-apply( X = cbind(inf = ValNominale*0.75, sup = ValNominale*1.25), 1
 des_xp100<-fast99(model = NULL, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp1<-des_xp100$X # On conserve le tableau avec les variations par paramètres
 length(des_xp1[,1]) # Longueur du tableau
-
 ```
 
 On obtient donc un tableau à 1500 lignes, pour la simulation du paramètre seul, et des intéractions avec les 14 autres pour 100 scénarios. 
@@ -641,10 +638,13 @@ L'espace des paramètres est rempli de la même manière quelque soient les para
 On effectue les mêmes démarches pour 1000 scénarios. 
 
 ```{r}
-des_xp1000<-fast99(model = NULL, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges) # Pour creer le design expérimental
+des_xp1000<-fast99(model = NULL, 
+                   factors = ParamNames, 
+                   n = 1000, 
+                   q = rep("qunif",15), 
+                   q.arg = ParamRanges) # Pour creer le design expérimental
 des_xp2<-des_xp1000$X # On conserve le tableau avec les variations par paramètres
 length(des_xp2[,1]) # Longueur du tableau
-
 ```
 
 On obtient donc un tableau de 15000 lignes.
@@ -653,7 +653,7 @@ Et pour le design expérimental :
 
 ```{r, echo = F}
 plot(des_xp2[1:2000,1:2], type='p', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
-plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres") 
+plot(des_xp2[1:2000,1:2], type='b', main = "Variation des paramètres K et sr dans l'espace des paramètres")
 ```
 On obtient donc un recouvrement plus important de l'espace que pour seulement 100 simulations.
 
@@ -673,11 +673,19 @@ points(des_xp1[1:2000,1:2], type='p', main = "Variation des paramètres K et sr 
 Après avoir créé les deux designs expérimentaux, on peut donc passer à l'analyse FAST. 
 
 ```{r}
-FAST1<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+FAST1<-fast99(model = modAppli, 
+              factors = ParamNames, 
+              n = 100, 
+              q = rep("qunif",15), 
+              q.arg = ParamRanges)
 ```
 
 ```{r}
-FAST2<-fast99(model = modAppli, factors = ParamNames, n = 1000, q = rep("qunif",15), q.arg = ParamRanges)
+FAST2<-fast99(model = modAppli, 
+              factors = ParamNames, 
+              n = 1000, 
+              q = rep("qunif",15), 
+              q.arg = ParamRanges)
 ```
 
 
@@ -705,9 +713,12 @@ hist(FAST2$y[4501:6000], main = "Analyse de sensibilité FAST : sortie 4", xlab 
 On peut à présent observer les résultats de l'analyse. 
 
 ```{r, echo = FALSE}
-fast2<-fast99(model = modAppli, factors = ParamNames, n = 100, q = rep("qunif",15), q.arg = ParamRanges)
+fast2<-fast99(model = modAppli, 
+              factors = ParamNames, 
+              n = 100, 
+              q = rep("qunif",15), 
+              q.arg = ParamRanges)
 plot(fast2)
-
 
 fast2_df <- as.data.frame(fast2$X)
 # hist(fast2_df$f3)
@@ -747,9 +758,6 @@ library(gridExtra)
 length(plot_list)
 plot_list$K
 grid.arrange(grobs = plot_list)  # Ajuste ncol en fonction de la mise en page souhaitée
-
-
-
 
 
 FAST100<-modAppli(des_xp) # Simulation
@@ -1226,6 +1234,7 @@ Afficher les graphiques
 
 ```{r, echo = F}
 par(mfrow = c(2, 2))
+
 plot(morris_results, y_col = 1, main = "Taux d'infectés le dernier jours", atpen = T)
 abline(v = 0.1)
 abline(h = 0.1)
@@ -1233,9 +1242,11 @@ abline(h = 0.1)
 plot(morris_results, y_col = 2, main = "Incidence le dernier jour")
 abline(v = 0.1)
 abline(h = 0.1)
+
 plot(morris_results, y_col = 3, main = "Nombre maximum d'infectieux en 2 ans")
 abline(v = 0.1)
 abline(h = 0.1)
+
 plot(morris_results, y_col = 4, main = "Incidence sur l'année")
 abline(v = 0.1)
 abline(h = 0.1)
