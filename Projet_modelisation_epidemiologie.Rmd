@@ -854,10 +854,17 @@ plot(FAST1D)
 
 ```
 
+## 5. Discussion
+
+
 
 ## 6. Modifications du modèle
 
-Nous faisons l'hypothèse que la transmission de l'agent pathogène est plus grande au sein d'une même classe qu'entre les classes d'âge car les individus de même classe d'âge se retrouve plus souvent proches.
+### a. Explication des modifications 
+
+Nous faisons l'hypothèse que la transmission de l'agent pathogène est plus grande au sein d'une même classe qu'entre les classes d'âge car les individus de même classe d'âge ont plus d'intéractions.
+
+Nous pouvons imaginer ce cas de figure pour un élevage d'individus parqués par classe d'âge, qui vont donc s'infecter plus fréquemment. 
 
 Voici les équations modifiées :
 
